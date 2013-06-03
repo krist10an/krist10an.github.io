@@ -2,12 +2,12 @@
 <html lang="en">
 <head>
 
-	<title>Kristian's Navigator</title>
+	<title>Kristian's map area selector</title>
 	<meta charset="utf-8" />
 
 	<link rel="stylesheet" href="http://cdn.leafletjs.com/leaflet-0.5.1/leaflet.css" />
 	<!--[if lte IE 8]>
-	    <link rel="stylesheet" href="http://cdn.leafletjs.com/leaflet-0.5.1/leaflet.ie.css" />
+		<link rel="stylesheet" href="http://cdn.leafletjs.com/leaflet-0.5.1/leaflet.ie.css" />
 	<![endif]-->
 
 	<script src="http://cdn.leafletjs.com/leaflet-0.5.1/leaflet.js"></script>
@@ -18,42 +18,56 @@
 	<link href="http://netdna.bootstrapcdn.com/twitter-bootstrap/2.3.2/css/bootstrap-combined.min.css" rel="stylesheet">
 	<script src="http://netdna.bootstrapcdn.com/twitter-bootstrap/2.3.2/js/bootstrap.min.js"></script>
 
-    <style type="text/css">
-      body {
-        padding-top: 60px; /* 60px to make the container go all the way to the bottom of the topbar */
-      }
-    </style>
+	<style type="text/css">
+		body {
+			padding-top: 60px; /* 60px to make the container go all the way to the bottom of the topbar */
+		}
+	</style>
 
 </head>
 <body>
 
 	<div class="navbar navbar-inverse navbar-fixed-top">
-      <div class="navbar-inner">
-        <div class="container">
-          <button type="button" class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse">
-            <span class="icon-bar"></span>
-          </button>
-          <a class="brand" href="#">Map</a>
-          <div class="nav-collapse collapse">
-            <ul class="nav">
-              <li class="active"><a href="#">Select</a></li>
-            </ul>
-          </div><!--/.nav-collapse -->
-        </div>
-      </div>
-    </div>
+		<div class="navbar-inner">
+			<div class="container">
+				<button type="button" class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse">
+					<span class="icon-bar"></span>
+				</button>
+				<a class="brand" href="#">Map navigator</a>
+				<!--
+				<div class="nav-collapse collapse">
+					<ul class="nav">
+						<li class="active"><a href="#">Selector</a></li>
+					</ul>
+				</div>--><!--/.nav-collapse -->
+			</div>
+		</div>
+	</div>
 
 	<div class="container">
-		<h3>Move pins to select your area</h3>
-	 	<div id="map" style="height: 480px;"></div>
-	 	<div style="padding-top: 40px;">
-			<p>Output to Python script:<p>
-	 		<pre id="where">&nbsp;</pre>
-			<p>Area covered:<p>
-	 		<pre id="dist"></pre>
-	 	</div>
-
+		<p class="lead">Move pins to select your area, click to move area</p>
+		<div id="map" style="height: 480px;"></div>
+		<div style="padding-top: 40px;">
+			<div class="row">
+				<div class="span5">
+				<form id="stats">
+					<fieldset>
+						<legend>Statistics</legend>
+						<label>Model target size, longest side (mm)</label>
+						<input name="modelsize" type="text" value="100"/>
+						<p>Scale of model: <span class="text-info" id="scale_output"></span></p>
+						<p>Area covered: <span class="text-info" id="area_output"></span></p>
+					</fieldset>
+				</form>
+				</div>
+				<div class="span7">
+					<p>Input values to model generator script:</p>
+					<pre id="result_output">&nbsp;</pre>
+				</div>
+			</div>
+		</div>
 	</div>
+
 	<script>
 		// Basemaps
 		var oms_url =  "http://129.206.74.245:8004/tms_hs.ashx?x={x}&y={y}&z={z}"
@@ -96,56 +110,88 @@
 
 		L.control.scale().addTo(map);
 
-		var popup = L.popup();
+		var selectionRect = L.rectangle([[61.43056, 7.92252], [61.49780, 7.75806]], {color: "#ff7800", weight:1}).addTo(map);
 
-		var myrect = L.rectangle([[61.43056, 7.92252], [61.49780, 7.75806]], {color: "#ff7800", weight:1}).addTo(map);
-
-		var northEastMarker = L.marker(myrect.getBounds().getNorthEast(), { draggable : true }).addTo(map);
-		var southWestMarker = L.marker(myrect.getBounds().getSouthWest(), { draggable : true }).addTo(map);
+		var markerOne = L.marker(selectionRect.getBounds().getNorthEast(), { draggable : true }).addTo(map);
+		var markerTwo = L.marker(selectionRect.getBounds().getSouthWest(), { draggable : true }).addTo(map);
 
 		var digits = 5;
 
+		var currentModelSize = 1;
+		var currentScale = 1;
+
+		function get_area_distances() {
+			var m1 = markerOne.getLatLng();
+			var m2 = markerTwo.getLatLng();
+
+			var dist_NS = m1.distanceTo([m2.lat, m1.lng]).toFixed(0);
+			var dist_WE = m1.distanceTo([m1.lat, m2.lng]).toFixed(0);
+			return { 'WE' : dist_WE, 'NS' : dist_NS };
+		}
+
 		function onMapDrag(e) {
-			var NE = northEastMarker.getLatLng();
-			var SW = southWestMarker.getLatLng();
+			var m1 = markerOne.getLatLng();
+			var m2 = markerTwo.getLatLng();
 
-			var dist_NS = NE.distanceTo([SW.lat, NE.lng]).toFixed(0);
-			var dist_WE = NE.distanceTo([NE.lat, SW.lng]).toFixed(0);
+			selectionRect.setBounds([[m1.lat, m1.lng], [m2.lat, m2.lng]]);
 
-			myrect.setBounds([[NE.lat, NE.lng], [SW.lat, SW.lng]]);
+			var NE = selectionRect.getBounds().getNorthEast();
+			var SW = selectionRect.getBounds().getSouthWest();
 
-			var x = NE.lat.toFixed(digits) + ", " +
-				 NE.lng.toFixed(digits) + " \n" +
-				 SW.lat.toFixed(digits) + ", " +
-				 SW.lng.toFixed(digits);
-			$("#where").html(x);
-			$("#dist").html(dist_NS + " x " + dist_WE + " meters");
+			$("#result_output").html(
+				SW.lat.toFixed(digits) + " " +
+				SW.lng.toFixed(digits) + " " +
+				NE.lat.toFixed(digits) + " "  +
+				NE.lng.toFixed(digits) + " \n" +
+				currentModelSize.toFixed(0)
+			);
+
+			var dist = get_area_distances();
+			$("#area_output").html(dist.NS + " x " + dist.WE + " meters");
+			updateScale();
 		}
 
 		function onMapClick(e) {
 			var lat = e.latlng.lat;
 			var lng = e.latlng.lng;
 
-			var NE = myrect.getBounds().getNorthEast();
-			var SW = myrect.getBounds().getSouthWest();
+			var NE = selectionRect.getBounds().getNorthEast();
+			var SW = selectionRect.getBounds().getSouthWest();
 
 			var size_NS = NE.lat - SW.lat;
 			var size_EW = NE.lng - SW.lng;
 
-			northEastMarker.setLatLng([lat - size_NS/2, lng - size_EW/2]);
-			southWestMarker.setLatLng([lat + size_NS/2, lng + size_EW/2]);
+			markerOne.setLatLng([lat - size_NS/2, lng - size_EW/2]);
+			markerTwo.setLatLng([lat + size_NS/2, lng + size_EW/2]);
 			onMapDrag(0);
 		}
 
-		northEastMarker.on('drag', onMapDrag);
-		southWestMarker.on('drag', onMapDrag);
+		function updateScale() {
+			var targetSize = parseInt($("#stats input")[0].value);
+			if (targetSize == NaN) {
+			} else {
+				currentModelSize = targetSize;
 
-		northEastMarker.on('dragend', onMapDrag);
-		southWestMarker.on('dragend', onMapDrag);
+				var dist = get_area_distances();
+				currentScale = Math.max(dist.NS, dist.WE) / (targetSize / 1000);
+
+				$("#scale_output").html("1 : " + String(currentScale.toFixed(0)));
+			}
+		}
+
+		// Attach event handlers
+		markerOne.on('drag', onMapDrag);
+		markerTwo.on('drag', onMapDrag);
 
 		map.on('click', onMapClick);
 
-		onMapDrag(0);
+		$("#stats input").keyup(updateScale);
+
+		// Forcefully update display
+		$(document).ready(function() {
+			updateScale();
+			onMapDrag();
+		});
 	</script>
 
 </body>
