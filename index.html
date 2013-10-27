@@ -45,7 +45,17 @@
 	</div>
 
 	<div class="container">
-		<p class="lead">Move pins to select your area, click to move area</p>
+		<div>
+		<p class="lead">Move pins to select your area, click to move area
+		<span class="pull-right">
+			<select id="preselected">
+			<option>Custom</option>
+			<option value="61.43056,7.75806,61.49780,7.92252">Hurrungane</option>
+			<option value="27.96439,86.87920,28.02411,86.97155">Mt Everest</option>
+		</select>
+		</span>
+		</p>
+		</div>
 		<div id="map" style="height: 480px;"></div>
 		<div style="padding-top: 40px;">
 			<div class="row">
@@ -68,7 +78,7 @@
 		</div>
 	</div>
 
-	<script>
+	<script type="text/javascript">
 		// Basemaps
 		var oms_url =  "http://129.206.74.245:8004/tms_hs.ashx?x={x}&y={y}&z={z}"
 		var oms_attr = 'Tiles by <a href="http://openmapsurfer.uni-hd.de/">OpenMapSurfer</a>'
@@ -142,8 +152,7 @@
 				SW.lat.toFixed(digits) + " " +
 				SW.lng.toFixed(digits) + " " +
 				NE.lat.toFixed(digits) + " "  +
-				NE.lng.toFixed(digits) + " \n" +
-				currentModelSize.toFixed(0)
+				NE.lng.toFixed(digits)
 			);
 
 			var dist = get_area_distances();
@@ -186,6 +195,17 @@
 		map.on('click', onMapClick);
 
 		$("#stats input").keyup(updateScale);
+		$("#preselected").change(function(e) {
+			var vv = $(this).val()
+			console.log(vv);
+			if (vv) {
+				vv = vv.split(",")
+				map.fitBounds([ [vv[0], vv[1]], [vv[2], vv[3]] ])
+				markerOne.setLatLng([vv[0], vv[1]]);
+				markerTwo.setLatLng([vv[2], vv[3]]);
+				onMapDrag(0);
+			}
+		})
 
 		// Forcefully update display
 		$(document).ready(function() {
