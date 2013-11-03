@@ -49,9 +49,6 @@
 		<p class="lead">Move pins to select your area, click to move area
 		<span class="pull-right">
 			<select id="preselected">
-			<option>Custom</option>
-			<option value="61.43056,7.75806,61.49780,7.92252">Hurrungane</option>
-			<option value="27.96439,86.87920,28.02411,86.97155">Mt Everest</option>
 		</select>
 		</span>
 		</p>
@@ -79,6 +76,15 @@
 	</div>
 
 	<script type="text/javascript">
+		// Predefined
+		var preselected = [
+			{ name: "Hurrungane", value: [[61.41578, 7.89230], [61.48109, 7.73952]]},
+			{ name: "Mt Everest", value: [[28.02411, 86.87920], [27.96439, 86.97155]]},
+		 ];
+		$.each(preselected, function(idx, d) {
+			$("#preselected").append("<option value='"+d.value+"'>"+d.name+"</option>");
+		})
+
 		// Basemaps
 		var oms_url =  "http://129.206.74.245:8004/tms_hs.ashx?x={x}&y={y}&z={z}"
 		var oms_attr = 'Tiles by <a href="http://openmapsurfer.uni-hd.de/">OpenMapSurfer</a>'
@@ -120,10 +126,10 @@
 
 		L.control.scale().addTo(map);
 
-		var selectionRect = L.rectangle([[61.43056, 7.92252], [61.49780, 7.75806]], {color: "#ff7800", weight:1}).addTo(map);
+		var selectionRect = L.rectangle(preselected[0].value, {color: "#ff7800", weight:1}).addTo(map);
 
-		var markerOne = L.marker(selectionRect.getBounds().getNorthEast(), { draggable : true }).addTo(map);
-		var markerTwo = L.marker(selectionRect.getBounds().getSouthWest(), { draggable : true }).addTo(map);
+		var markerOne = L.marker(selectionRect.getBounds().getNorthWest(), { draggable : true }).addTo(map);
+		var markerTwo = L.marker(selectionRect.getBounds().getSouthEast(), { draggable : true }).addTo(map);
 
 		var digits = 5;
 
@@ -139,20 +145,24 @@
 			return { 'WE' : dist_WE, 'NS' : dist_NS };
 		}
 
+		function mapZoom() {
+			var m1 = markerOne.getLatLng();
+			var m2 = markerTwo.getLatLng();
+			map.fitBounds([[m1.lat, m1.lng], [m2.lat, m2.lng]])
+		}
+
 		function onMapDrag(e) {
 			var m1 = markerOne.getLatLng();
 			var m2 = markerTwo.getLatLng();
 
 			selectionRect.setBounds([[m1.lat, m1.lng], [m2.lat, m2.lng]]);
 
-			var NE = selectionRect.getBounds().getNorthEast();
-			var SW = selectionRect.getBounds().getSouthWest();
+			var NW = selectionRect.getBounds().getNorthWest();
+			var SE = selectionRect.getBounds().getSouthEast();
 
 			$("#result_output").html(
-				SW.lat.toFixed(digits) + " " +
-				SW.lng.toFixed(digits) + " " +
-				NE.lat.toFixed(digits) + " "  +
-				NE.lng.toFixed(digits)
+				NW.lat.toFixed(digits) + " " + NW.lng.toFixed(digits) + " " +
+				SE.lat.toFixed(digits) + " " + SE.lng.toFixed(digits)
 			);
 
 			var dist = get_area_distances();
@@ -164,11 +174,11 @@
 			var lat = e.latlng.lat;
 			var lng = e.latlng.lng;
 
-			var NE = selectionRect.getBounds().getNorthEast();
-			var SW = selectionRect.getBounds().getSouthWest();
+			var NW = selectionRect.getBounds().getNorthWest();
+			var SE = selectionRect.getBounds().getSouthEast();
 
-			var size_NS = NE.lat - SW.lat;
-			var size_EW = NE.lng - SW.lng;
+			var size_NS = NW.lat - SE.lat;
+			var size_EW = NW.lng - SE.lng;
 
 			markerOne.setLatLng([lat - size_NS/2, lng - size_EW/2]);
 			markerTwo.setLatLng([lat + size_NS/2, lng + size_EW/2]);
@@ -200,9 +210,9 @@
 			console.log(vv);
 			if (vv) {
 				vv = vv.split(",")
-				map.fitBounds([ [vv[0], vv[1]], [vv[2], vv[3]] ])
 				markerOne.setLatLng([vv[0], vv[1]]);
 				markerTwo.setLatLng([vv[2], vv[3]]);
+				mapZoom();
 				onMapDrag(0);
 			}
 		})
@@ -211,6 +221,7 @@
 		$(document).ready(function() {
 			updateScale();
 			onMapDrag();
+			mapZoom();
 		});
 	</script>
 
