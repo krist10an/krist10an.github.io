@@ -80,6 +80,13 @@
 		var preselected = [
 			{ name: "Hurrungane", value: [[61.41578, 7.89230], [61.48109, 7.73952]]},
 			{ name: "Mt Everest", value: [[28.02411, 86.87920], [27.96439, 86.97155]]},
+			{ name: "Aconcagua", value: [[-32.61624, -70.07835], [-32.72318, -69.91974]]},
+			{ name: "Mt McKinley / Denali", value: [[63.09538, -151.12244], [62.96771, -150.79697]]},
+			{ name: "Mt Kilimanjaro", value: [[-3.03458, 37.32056], [-3.10349, 37.39746]]},
+			{ name: "Mt Elbrus", value: [[43.38484, 42.40036], [43.31419, 42.49821]]},
+			{ name: "Mont Blanc", value: [[45.85140, 6.83401], [45.80906, 6.90079]]},
+			{ name: "Mt Vinson", value: [[-78.51232, -85.69405], [-78.53677, -85.53818]]},
+			{ name: "Mt Baker", value: [[48.84755, -121.95648], [48.68552, -121.64200]]},
 		 ];
 		$.each(preselected, function(idx, d) {
 			$("#preselected").append("<option value='"+d.value+"'>"+d.name+"</option>");
@@ -161,8 +168,10 @@
 			var SE = selectionRect.getBounds().getSouthEast();
 
 			$("#result_output").html(
-				NW.lat.toFixed(digits) + " " + NW.lng.toFixed(digits) + " " +
-				SE.lat.toFixed(digits) + " " + SE.lng.toFixed(digits)
+				"["+
+				NW.lat.toFixed(digits) + ", " + NW.lng.toFixed(digits) + "], [" +
+				SE.lat.toFixed(digits) + ", " + SE.lng.toFixed(digits) +
+				"]"
 			);
 
 			var dist = get_area_distances();
