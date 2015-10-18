@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+
+	<title>Kristian's map area selector</title>
+	<meta charset="utf-8" />
+
+	<link rel="stylesheet" href="http://cdn.leafletjs.com/leaflet-0.5.1/leaflet.css" />
+	<!--[if lte IE 8]>
+		<link rel="stylesheet" href="http://cdn.leafletjs.com/leaflet-0.5.1/leaflet.ie.css" />
+	<![endif]-->
+
+	<script src="http://cdn.leafletjs.com/leaflet-0.5.1/leaflet.js"></script>
+
+	<script src="http://code.jquery.com/jquery-1.10.0.min.js"></script>
+	<script src="http://code.jquery.com/jquery-migrate-1.2.1.min.js"></script>
+
+	<link href="http://netdna.bootstrapcdn.com/twitter-bootstrap/2.3.2/css/bootstrap-combined.min.css" rel="stylesheet">
+	<script src="http://netdna.bootstrapcdn.com/twitter-bootstrap/2.3.2/js/bootstrap.min.js"></script>
+
+	<style type="text/css">
+		body {
+			padding-top: 60px; /* 60px to make the container go all the way to the bottom of the topbar */
+		}
+	</style>
+
+</head>
+<body>
+
+	<div class="navbar navbar-inverse navbar-fixed-top">
+		<div class="navbar-inner">
+			<div class="container">
+				<button type="button" class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse">
+					<span class="icon-bar"></span>
+				</button>
+				<a class="brand" href="#">Map navigator</a>
+				<!--
+				<div class="nav-collapse collapse">
+					<ul class="nav">
+						<li class="active"><a href="#">Selector</a></li>
+					</ul>
+				</div>--><!--/.nav-collapse -->
+			</div>
+		</div>
+	</div>
+
+	<div class="container">
+		<div>
+		<p class="lead">Move pins to select your area, click to move area
+		<span class="pull-right">
+			<select id="preselected">
+		</select>
+		</span>
+		</p>
+		</div>
+		<div id="map" style="height: 480px;"></div>
+		<div style="padding-top: 40px;">
+			<div class="row">
+				<div class="span5">
+				<form id="stats">
+					<fieldset>
+						<legend>Statistics</legend>
+						<label>Model target size, longest side (mm)</label>
+						<input name="modelsize" type="text" value="100"/>
+						<p>Scale of model: <span class="text-info" id="scale_output"></span></p>
+						<p>Area covered: <span class="text-info" id="area_output"></span></p>
+					</fieldset>
+				</form>
+				</div>
+				<div class="span7">
+					<p>Input values to model generator script:</p>
+					<pre id="result_output">&nbsp;</pre>
+				</div>
+			</div>
+		</div>
+	</div>
+
+	<script type="text/javascript">
+		// Predefined
+		var preselected = [
+			{ name: "Hurrungane", value: [[61.41578, 7.89230], [61.48109, 7.73952]]},
+			{ name: "Mt Everest", value: [[28.02411, 86.87920], [27.96439, 86.97155]]},
+			{ name: "Aconcagua", value: [[-32.61624, -70.07835], [-32.72318, -69.91974]]},
+			{ name: "Mt McKinley / Denali", value: [[63.09538, -151.12244], [62.96771, -150.79697]]},
+			{ name: "Mt Kilimanjaro", value: [[-3.03458, 37.32056], [-3.10349, 37.39746]]},
+			{ name: "Mt Elbrus", value: [[43.38484, 42.40036], [43.31419, 42.49821]]},
+			{ name: "Mont Blanc", value: [[45.85140, 6.83401], [45.80906, 6.90079]]},
+			{ name: "Mt Vinson", value: [[-78.51232, -85.69405], [-78.53677, -85.53818]]},
+			{ name: "Mt Baker", value: [[48.84755, -121.95648], [48.68552, -121.64200]]},
+		 ];
+		$.each(preselected, function(idx, d) {
+			$("#preselected").append("<option value='"+d.value+"'>"+d.name+"</option>");
+		})
+
+		// Basemaps
+		var oms_url =  "http://129.206.74.245:8004/tms_hs.ashx?x={x}&y={y}&z={z}"
+		var oms_attr = 'Tiles by <a href="http://openmapsurfer.uni-hd.de/">OpenMapSurfer</a>'
+		var oms_tile = L.tileLayer(oms_url, { maxZoom: 14,	attribution: oms_attr });
+
+		var osm_url = 'http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png'
+		var osm_attr = 'Map data &copy; <a href="http://openstreetmap.org">OpenStreetMap</a> contributors, <a href="http://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>'
+		var osm_tile = L.tileLayer(osm_url, { maxZoom: 18,	attribution: osm_attr });
+
+		var ts_url = "http://tile.stamen.com/terrain-background/{z}/{x}/{y}.jpg"
+		var ts_attr = '<a href="http://maps.stamen.com/">Map tiles</a> by <a href="http://stamen.com/">Samen Design</a>. Map data &copy; <a href="http://openstreetmap.org">OpenStreetMap</a> contributors"'
+		var ts_tile = L.tileLayer(ts_url, { maxZoom: 18, attribution: ts_attr });
+
+		var nk_url = "http://opencache.statkart.no/gatekeeper/gk/gk.open_gmaps?layers=topo2&zoom={z}&x={x}&y={y}"
+		var nk_attr = 'Map data &copy; Norgeskart'
+		var nk_tile = L.tileLayer(nk_url, {	maxZoom: 18, attribution: nk_attr });
+
+		// Overlays
+		var opm_url = 'http://tiles2.openpistemap.org/landshaded/{z}/{x}/{y}.png'
+		var opm_attr = 'Landshading by <a href="OpenPisteMap.org">OpenPisteMap.org</a>'
+		var opm_tile = L.tileLayer(opm_url, { maxZoom: 18, attribution: opm_attr });
+
+		var map = L.map('map', {
+			center: new L.LatLng(61.46, 7.87),
+			zoom: 7,
+			layers: [osm_tile]
+		});
+
+		var baseMaps = {
+			"OpenStreetMap": osm_tile,
+			"ASTER GDEM & STRM Hillshade": oms_tile,
+			"Samen Design (US only)" : ts_tile,
+			"Norgeskart" : nk_tile,
+		};
+		var overlayMaps = {
+			"Landshading by OpenPisteMap" : opm_tile,
+		}
+		L.control.layers(baseMaps, overlayMaps).addTo(map);
+
+		L.control.scale().addTo(map);
+
+		var selectionRect = L.rectangle(preselected[0].value, {color: "#ff7800", weight:1}).addTo(map);
+
+		var markerOne = L.marker(selectionRect.getBounds().getNorthWest(), { draggable : true }).addTo(map);
+		var markerTwo = L.marker(selectionRect.getBounds().getSouthEast(), { draggable : true }).addTo(map);
+
+		var digits = 5;
+
+		var currentModelSize = 1;
+		var currentScale = 1;
+
+		function get_area_distances() {
+			var m1 = markerOne.getLatLng();
+			var m2 = markerTwo.getLatLng();
+
+			var dist_NS = m1.distanceTo([m2.lat, m1.lng]).toFixed(0);
+			var dist_WE = m1.distanceTo([m1.lat, m2.lng]).toFixed(0);
+			return { 'WE' : dist_WE, 'NS' : dist_NS };
+		}
+
+		function mapZoom() {
+			var m1 = markerOne.getLatLng();
+			var m2 = markerTwo.getLatLng();
+			map.fitBounds([[m1.lat, m1.lng], [m2.lat, m2.lng]])
+		}
+
+		function onMapDrag(e) {
+			var m1 = markerOne.getLatLng();
+			var m2 = markerTwo.getLatLng();
+
+			selectionRect.setBounds([[m1.lat, m1.lng], [m2.lat, m2.lng]]);
+
+			var NW = selectionRect.getBounds().getNorthWest();
+			var SE = selectionRect.getBounds().getSouthEast();
+
+			$("#result_output").html(
+				"["+
+				NW.lat.toFixed(digits) + ", " + NW.lng.toFixed(digits) + "], [" +
+				SE.lat.toFixed(digits) + ", " + SE.lng.toFixed(digits) +
+				"]"
+			);
+
+			var dist = get_area_distances();
+			$("#area_output").html(dist.NS + " x " + dist.WE + " meters");
+			updateScale();
+		}
+
+		function onMapClick(e) {
+			var lat = e.latlng.lat;
+			var lng = e.latlng.lng;
+
+			var NW = selectionRect.getBounds().getNorthWest();
+			var SE = selectionRect.getBounds().getSouthEast();
+
+			var size_NS = NW.lat - SE.lat;
+			var size_EW = NW.lng - SE.lng;
+
+			markerOne.setLatLng([lat - size_NS/2, lng - size_EW/2]);
+			markerTwo.setLatLng([lat + size_NS/2, lng + size_EW/2]);
+			onMapDrag(0);
+		}
+
+		function updateScale() {
+			var targetSize = parseInt($("#stats input")[0].value);
+			if (targetSize == NaN) {
+			} else {
+				currentModelSize = targetSize;
+
+				var dist = get_area_distances();
+				currentScale = Math.max(dist.NS, dist.WE) / (targetSize / 1000);
+
+				$("#scale_output").html("1 : " + String(currentScale.toFixed(0)));
+			}
+		}
+
+		// Attach event handlers
+		markerOne.on('drag', onMapDrag);
+		markerTwo.on('drag', onMapDrag);
+
+		map.on('click', onMapClick);
+
+		$("#stats input").keyup(updateScale);
+		$("#preselected").change(function(e) {
+			var vv = $(this).val()
+			console.log(vv);
+			if (vv) {
+				vv = vv.split(",")
+				markerOne.setLatLng([vv[0], vv[1]]);
+				markerTwo.setLatLng([vv[2], vv[3]]);
+				mapZoom();
+				onMapDrag(0);
+			}
+		})
+
+		// Forcefully update display
+		$(document).ready(function() {
+			updateScale();
+			onMapDrag();
+			mapZoom();
+		});
+	</script>
+
+</body>
+</html>
