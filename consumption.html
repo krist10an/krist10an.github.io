@@ -3,8 +3,9 @@
 
   <form role="form">
     <fieldset>
-      <legend><i class="fa fa-bolt fa-lg"></i> Forbruk</legend>
+      <legend><i class="fa fa-bolt fa-lg"></i> Beregne kjørelengde</legend>
 
+<!--
         <div class="form-group has-success has-feedback">
           <label>Kapasitet</label>
           <div class="input-group">
@@ -17,18 +18,27 @@
           <span class="input-group-addon" id="addon_kwh">kWh</span>
           </div>
         </div>
-
-        <div class="form-group has-success has-feedback">
-          <label>Ladenivå</label>
-          <div class="input-group">
-          <input type="number" min="0" max="100"
-                 ng-model="car.soc"
-                 ng-change="calculate()"
-                 class="form-control"
-                 placeholder="State of charge %">
-          <span class="input-group-addon" id="addon_soc">%</span>
-          </div>
+-->
+    <div class="row">
+        <div class="col-xs-6">
+            <div class="form-group has-success has-feedback">
+              <label>Ladenivå</label>
+              <div class="input-group">
+              <input type="number" min="0" max="100"
+                     ng-model="car.soc"
+                     ng-change="calculate()"
+                     class="form-control"
+                     placeholder="State of charge %">
+              <span class="input-group-addon" id="addon_soc">%</span>
+              </div>
+            </div>
         </div>
+        <div class="col-xs-6">
+            <p>{{carCapacity.getCapacity()}} kWh batteri</p>
+            <p>{{carCapacity.getCapacity()*car.soc/100 |number:1}} kWh tilgjengelig</p>
+        </div>
+    </div>
+
 
         <div class="form-group">
         <div class="row">
