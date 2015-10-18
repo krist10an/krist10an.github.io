@@ -11,7 +11,7 @@
           <label>Ladenivå</label>
           <div class="input-group">
           <input type="number" min="0" max="100"
-                 ng-model="car.soc"
+                 ng-model="soc"
                  ng-change="calculate()"
                  class="form-control"
                  placeholder="State of charge %"
@@ -23,7 +23,7 @@
 
       <div class="col-xs-6">
             <p>{{carCapacity.getCapacity()}} kWh batteri</p>
-            <p>{{carCapacity.getCapacity()*car.soc/100 |number:1}} kWh tilgjengelig</p>
+            <p>{{carCapacity.getCapacity()*soc/100 |number:1}} kWh tilgjengelig</p>
 <!--
         <div class="form-group has-success has-feedback">
           <label>Kapasitet</label>

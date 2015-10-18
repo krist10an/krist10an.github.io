@@ -25,7 +25,7 @@
               <label>Ladenivå</label>
               <div class="input-group">
               <input type="number" min="0" max="100"
-                     ng-model="car.soc"
+                     ng-model="soc"
                      ng-change="calculate()"
                      class="form-control"
                      placeholder="State of charge %">
@@ -35,7 +35,7 @@
         </div>
         <div class="col-xs-6">
             <p>{{carCapacity.getCapacity()}} kWh batteri</p>
-            <p>{{carCapacity.getCapacity()*car.soc/100 |number:1}} kWh tilgjengelig</p>
+            <p>{{carCapacity.getCapacity()*soc/100 |number:1}} kWh tilgjengelig</p>
         </div>
     </div>
 
@@ -45,16 +45,19 @@
         <div class="col-sm-6">
           <label>Forventa Forbruk</label>
           <input type="number" step="any" min="0"
-                 ng-model="car.consumption"
+                 ng-model="consumption"
                  ng-change="calculate()"
                  class="form-control"
                  placeholder="Consumption">
         </div>
         <div class="col-sm-6">
           <label>Enhet</label>
-          <select class="form-control" ng-model="unit">
-            <option ng-repeat="c in consumptionUnits">{{c}}</option>
-          </select>
+
+          <br/>
+          <div class="btn-group" role="group" ng-repeat="(key, val) in consumptionUnits">
+            <button type="button" class="btn btn-default" ng-class="{true: 'active'}[key == currentUnit]" ng-click="setUnit(key)">{{key}}</a>
+          </div>
+
         </div>
         </div>
         </div>

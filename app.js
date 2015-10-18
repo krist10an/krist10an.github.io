@@ -49,16 +49,20 @@ app.controller("ElbilKalkController", function($scope, CarCapacity) {
 app.controller("ConsumptionController", function($scope, CarCapacity) {
     $scope.carCapacity = CarCapacity;
     $scope.estimated = 0;
-    $scope.car = { "capacity": 21.2, "soc": 100, "consumption": 15.5 }
-    $scope.consumptionUnits = [ "kWh/100km"];
-    $scope.unit = "kWh/100km";
+    $scope.consumption = 15;
+    $scope.soc = 100;
+    $scope.consumptionUnits = { "kWh/100km" : 100, "Wh/km" : 1000 };
+    $scope.currentUnit = "kWh/100km";
 
     $scope.calculate = function calculate() {
-        unit = 100;
-        $scope.estimated = $scope.car.capacity * ($scope.car.soc / 100.0) / $scope.car.consumption * unit;
+        unit = $scope.consumptionUnits[$scope.currentUnit];
+        $scope.estimated = CarCapacity.getCapacity() * ($scope.soc / 100.0) / $scope.consumption * unit;
         console.log("Calculated distance", $scope.estimated);
     };
-
+    $scope.setUnit = function setUnit(val) {
+        $scope.currentUnit = val;
+        $scope.calculate();
+    };
     // Set initial values
     $scope.calculate();
 });
@@ -66,13 +70,13 @@ app.controller("ConsumptionController", function($scope, CarCapacity) {
 app.controller("DistanceController", function($scope, CarCapacity) {
     $scope.carCapacity = CarCapacity;
     $scope.estimated = 0;
-    $scope.car = { "capacity": 21.2, "soc": 100 }
+    $scope.soc = 100;
     $scope.distance = 150;
     $scope.unit = "kWh/100km";
 
     $scope.calculate = function calculate() {
         unit = 100;
-        $scope.estimated = $scope.car.capacity * ($scope.car.soc / 100.0) / $scope.distance * unit;
+        $scope.estimated = CarCapacity.getCapacity() * ($scope.soc / 100.0) / $scope.distance * unit;
         console.log("Calculated consumption", $scope.estimated);
     };
 
