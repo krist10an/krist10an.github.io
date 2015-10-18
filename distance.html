@@ -47,12 +47,9 @@
     </fieldset>
     <hr>
 
-    <h4>
-    <b>Beregnet forbruk:</b>
-    </h4>
-    <h3>
-    {{ estimated | number:1 }} kWh/100km
-    </h3>
+    <h3><b>Beregnet forbruk:</b></h3>
+    <h3>{{ estimated | number:1 }} kWh/100km</h3>
+    <h3>{{ estimated*10 | number:0 }} Wh/km</h3>
 
   </div>
 </div>
