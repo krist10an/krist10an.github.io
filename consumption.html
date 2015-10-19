@@ -7,6 +7,20 @@
 
       <div class="row">
         <div class="col-xs-6">
+          <div class="form-group has-success has-feedback">
+            <label>Forventa Forbruk</label>
+            <div class="input-group">
+              <input type="number" step="any" min="0"
+                     ng-model="consumption"
+                     ng-change="calculate()"
+                     class="form-control"
+                     aria-described-by="addon_cons"
+                     placeholder="Consumption">
+              <span class="input-group-addon" id="addon_cons">{{unitPreference.getConsumptionUnit()}}</span>
+            </div>
+          </div>
+        </div>
+        <div class="col-xs-6">
             <div class="form-group has-success has-feedback">
               <label>Ladenivå</label>
               <div class="input-group">
@@ -19,27 +33,6 @@
               </div>
             </div>
         </div>
-        <div class="col-xs-6">
-            <p>{{carCapacity.getCapacity()}} kWh batteri</p>
-            <p>{{carCapacity.getCapacity()*soc/100 |number:1}} kWh tilgjengelig</p>
-        </div>
-    </div>
-
-      <div class="row">
-      <div class="col-xs-6">
-        <div class="form-group has-success has-feedback">
-          <label>Forventa Forbruk</label>
-          <div class="input-group">
-            <input type="number" step="any" min="0"
-                   ng-model="consumption"
-                   ng-change="calculate()"
-                   class="form-control"
-                   aria-described-by="addon_cons"
-                   placeholder="Consumption">
-            <span class="input-group-addon" id="addon_cons">{{unitPreference.getConsumptionUnit()}}</span>
-          </div>
-        </div>
-      </div>
       </div>
 
     </fieldset>
@@ -50,6 +43,9 @@
   <div>
     <h4><b>Beregnet kjørelengde:</b></h4>
     <h3>{{ estimated | number:1 }} km</h3>
+  </div>
+  <div>
+        <p>{{carCapacity.getCapacity()}} kWh batteri / {{carCapacity.getCapacity()*soc/100 |number:1}} kWh tilgjengelig</p>
   </div>
 
   </div>

@@ -6,43 +6,34 @@
       <legend><i class="fa fa-bar-chart fa-lg"></i> Beregne maks forbruk</legend>
 
       <div class="row">
-      <div class="col-xs-6">
-        <div class="form-group has-success has-feedback">
-          <label>Ladenivå</label>
-          <div class="input-group">
-          <input type="number" min="0" max="100"
-                 ng-model="soc"
-                 ng-change="calculate()"
-                 class="form-control"
-                 placeholder="State of charge %"
-                 aria-described-by="addon_soc">
-          <span class="input-group-addon"  id="addon_soc">%</span>
+        <div class="col-xs-6">
+          <div class="form-group">
+            <label>Ønsket distanse</label>
+            <div class="input-group has-success has-feedback">
+            <input type="number" step="any" min="0"
+                   ng-model="distance"
+                   ng-change="calculate()"
+                   class="form-control"
+                   placeholder="Distance"
+                   aria-described-by="addon_dist">
+            <span class="input-group-addon" id="addon_dist">km</span>
+            </div>
           </div>
         </div>
-      </div>
-
-      <div class="col-xs-6">
-            <p>{{carCapacity.getCapacity()}} kWh batteri</p>
-            <p>{{carCapacity.getCapacity()*soc/100 |number:1}} kWh tilgjengelig</p>
-      </div>
-
-      </div>
-
-      <div class="row">
-      <div class="col-xs-6">
-        <div class="form-group">
-          <label>Ønsket distanse</label>
-          <div class="input-group has-success has-feedback">
-          <input type="number" step="any" min="0"
-                 ng-model="distance"
-                 ng-change="calculate()"
-                 class="form-control"
-                 placeholder="Distance"
-                 aria-described-by="addon_dist">
-          <span class="input-group-addon" id="addon_dist">km</span>
+        <div class="col-xs-6">
+          <div class="form-group has-success has-feedback">
+            <label>Ladenivå</label>
+            <div class="input-group">
+            <input type="number" min="0" max="100"
+                   ng-model="soc"
+                   ng-change="calculate()"
+                   class="form-control"
+                   placeholder="State of charge %"
+                   aria-described-by="addon_soc">
+            <span class="input-group-addon"  id="addon_soc">%</span>
+            </div>
           </div>
         </div>
-      </div>
       </div>
 
     </fieldset>
@@ -64,6 +55,10 @@
 </div>
 -->
   </div>
+  <div>
+        <p>{{carCapacity.getCapacity()}} kWh batteri / {{carCapacity.getCapacity()*soc/100 |number:1}} kWh tilgjengelig</p>
+  </div>
+
 
   </div>
 </div>

@@ -88,11 +88,11 @@ app.factory('UnitPreference', function($localstorage) {
 
 app.controller("ElbilKalkController", function($scope, CarCapacity, UnitPreference) {
     $scope.carPresets = [
-        { "name" : "Tesla Model S70", "consumption" : 17, "battery": 85},
-        { "name" : "Tesla Model S85", "consumption" : 17, "battery": 85},
-        { "name" : "VW eGolf 2015", "consumption" : 17, "battery" : 21.2},
-        { "name" : "Nissan Leaf 2015", "consumption" : 17, "battery":  21.3},
-        { "name" : "Kia Soul 2015", "consumption" : 17, "battery":  27},
+        { "name" : "Tesla Model S70", "battery": 70},
+        { "name" : "Tesla Model S85", "battery": 85},
+        { "name" : "VW eGolf 2015", "battery" : 21.2},
+        { "name" : "Nissan Leaf 2015", "battery":  21.3},
+        { "name" : "Kia Soul 2015", "battery":  27},
         ];
     $scope.orderProp = 'name';
     $scope.CarCapacity = CarCapacity
@@ -172,7 +172,7 @@ app.controller("ChargeController", function($scope, CarCapacity, UnitPreference,
     $scope.unitPreference = UnitPreference;
 
     $scope.distance = parseFloat($localstorage.get("charge_distance", 150));
-    $scope.consumption = parseFloat($localstorage.get("charge_consumption", 17));
+    $scope.consumption = parseFloat($localstorage.get("charge_consumption", 15));
 
     // Calculated variables
     $scope.estimated = 0;
