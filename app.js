@@ -59,10 +59,34 @@ app.factory('CarCapacity', function($localstorage) {
     }
 });
 
+app.factory('UnitPreference', function($localstorage) {
+    var consumptionUnits = { "kWh/100km" : 100, "Wh/km" : 1000 };
+    var temp = $localstorage.get('unit_preference', "kWh/100km");
+    var data = {
+        preferredUnit: temp,
+    };
+    return {
+        getAllUnits: function() {
+            return consumptionUnits;
+        },
+        getConsumptionUnit: function() {
+            return data.preferredUnit;
+        },
+        getConsumptionUnitFactor: function() {
+            return consumptionUnits[data.preferredUnit];
+        },
+        setConsumptionUnit: function(value) {
+            console.log("Setting consumption to", value);
+            data.preferredUnit = value;
+            $localstorage.set("unit_preference", value);
+        }
+    }
+});
+
 
 // Controllers
 
-app.controller("ElbilKalkController", function($scope, CarCapacity) {
+app.controller("ElbilKalkController", function($scope, CarCapacity, UnitPreference) {
     $scope.carPresets = [
         { "name" : "Tesla Model S70", "consumption" : 17, "battery": 85},
         { "name" : "Tesla Model S85", "consumption" : 17, "battery": 85},
@@ -74,34 +98,41 @@ app.controller("ElbilKalkController", function($scope, CarCapacity) {
     $scope.CarCapacity = CarCapacity
     $scope.currentCapacity = CarCapacity.getCapacity();
 
+    $scope.currentUnit = UnitPreference.getConsumptionUnit();
+    $scope.UnitPreference = UnitPreference;
+
     $scope.$watch('currentCapacity', function (newValue, oldValue) {
         if (newValue !== oldValue) CarCapacity.setCapacity(newValue);
     });
     $scope.setCapacity = function(value) {
         $scope.currentCapacity = value;
     };
+
+    $scope.$watch('currentUnit', function (newValue, oldValue) {
+        if (newValue !== oldValue) UnitPreference.setConsumptionUnit(newValue);
+    });
+    $scope.setUnit = function setUnit(val) {
+        $scope.currentUnit = val;
+    };
 });
 
-app.controller("ConsumptionController", function($scope, CarCapacity, $localstorage) {
+app.controller("ConsumptionController", function($scope, CarCapacity, UnitPreference, $localstorage) {
     $scope.carCapacity = CarCapacity;
-    $scope.estimated = 0;
+    $scope.unitPreference = UnitPreference;
+
     $scope.consumption = parseFloat($localstorage.get("cons_consumption", 15));
     $scope.soc = parseFloat($localstorage.get("cons_soc", 100));
-    $scope.consumptionUnits = { "kWh/100km" : 100, "Wh/km" : 1000 };
-    $scope.currentUnit = $localstorage.get("consumptionUnit", "kWh/100km")
+
+    // Calculated variables
+    $scope.estimated = 0;
 
     $scope.calculate = function calculate() {
-        unit = $scope.consumptionUnits[$scope.currentUnit];
+        unit = UnitPreference.getConsumptionUnitFactor();
         $scope.estimated = CarCapacity.getCapacity() * ($scope.soc / 100.0) / $scope.consumption * unit;
         console.log("Calculated distance", $scope.estimated);
 
         $localstorage.set("cons_consumption", $scope.consumption);
         $localstorage.set("cons_soc", $scope.soc);
-    };
-    $scope.setUnit = function setUnit(val) {
-        $scope.currentUnit = val;
-        $localstorage.set("consumptionUnit", val);
-        $scope.calculate();
     };
     // Set initial values
     $scope.calculate();
@@ -136,8 +167,9 @@ app.controller("DistanceController", function($scope, CarCapacity, $localstorage
     $scope.calculate();
 });
 
-app.controller("ChargeController", function($scope, CarCapacity, $localstorage) {
+app.controller("ChargeController", function($scope, CarCapacity, UnitPreference, $localstorage) {
     $scope.carCapacity = CarCapacity;
+    $scope.unitPreference = UnitPreference;
 
     $scope.distance = parseFloat($localstorage.get("charge_distance", 150));
     $scope.consumption = parseFloat($localstorage.get("charge_consumption", 17));
@@ -147,7 +179,7 @@ app.controller("ChargeController", function($scope, CarCapacity, $localstorage) 
     $scope.required_kwh = 0;
 
     $scope.calculate = function calculate() {
-        unit = 100;
+        unit = UnitPreference.getConsumptionUnitFactor();
         $scope.required_kwh = $scope.distance * ( $scope.consumption / unit);
         $scope.estimated = $scope.required_kwh / CarCapacity.getCapacity() * 100;
         $localstorage.set("charge_distance", $scope.distance);

@@ -5,21 +5,7 @@
     <fieldset>
       <legend><i class="fa fa-road fa-lg"></i> Beregne kjørelengde</legend>
 
-<!--
-        <div class="form-group has-success has-feedback">
-          <label>Kapasitet</label>
-          <div class="input-group">
-          <input type="number" step="any" min="0"
-                 ng-model="car.capacity"
-                 ng-change="calculate()"
-                 class="form-control"
-                 placeholder="Total capacity in kwh"
-                 aria-described-by="addon_kwh">
-          <span class="input-group-addon" id="addon_kwh">kWh</span>
-          </div>
-        </div>
--->
-    <div class="row">
+      <div class="row">
         <div class="col-xs-6">
             <div class="form-group has-success has-feedback">
               <label>Ladenivå</label>
@@ -39,28 +25,23 @@
         </div>
     </div>
 
-
-        <div class="form-group">
-        <div class="row">
-        <div class="col-sm-6">
+      <div class="row">
+      <div class="col-xs-6">
+        <div class="form-group has-success has-feedback">
           <label>Forventa Forbruk</label>
-          <input type="number" step="any" min="0"
-                 ng-model="consumption"
-                 ng-change="calculate()"
-                 class="form-control"
-                 placeholder="Consumption">
-        </div>
-        <div class="col-sm-6">
-          <label>Enhet</label>
-
-          <br/>
-          <div class="btn-group" role="group" ng-repeat="(key, val) in consumptionUnits">
-            <button type="button" class="btn btn-default" ng-class="{true: 'active'}[key == currentUnit]" ng-click="setUnit(key)">{{key}}</button>
+          <div class="input-group">
+            <input type="number" step="any" min="0"
+                   ng-model="consumption"
+                   ng-change="calculate()"
+                   class="form-control"
+                   aria-described-by="addon_cons"
+                   placeholder="Consumption">
+            <span class="input-group-addon" id="addon_cons">{{unitPreference.getConsumptionUnit()}}</span>
           </div>
+        </div>
+      </div>
+      </div>
 
-        </div>
-        </div>
-        </div>
     </fieldset>
   </form>
 

@@ -8,9 +8,16 @@
     <div>
     <form role="form">
         <fieldset>
+
+        <legend><i class="fa fa-adjust fa-lg"></i> Foretrukket enhet</legend>
+        <div class="btn-group" role="group" ng-repeat="(key, val) in UnitPreference.getAllUnits()">
+          <button type="button" class="btn btn-default" ng-class="{true: 'active'}[key == currentUnit]" ng-click="setUnit(key)">{{key}}</button>
+        </div>
+
+        <hr>
+
         <legend><i class="fa fa-battery-1 fa-lg"></i> Velg batterikapasitet</legend>
         <div class="form-group has-success has-feedback">
-          <!-- <label>Kapasitet</label> -->
           <div class="input-group">
           <input type="number" step="any" min="0"
                  ng-model="currentCapacity"

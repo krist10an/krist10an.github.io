@@ -24,27 +24,15 @@
       <div class="col-xs-6">
             <p>{{carCapacity.getCapacity()}} kWh batteri</p>
             <p>{{carCapacity.getCapacity()*soc/100 |number:1}} kWh tilgjengelig</p>
-<!--
-        <div class="form-group has-success has-feedback">
-          <label>Kapasitet</label>
-          <div class="input-group">
-          <input type="number" step="any" min="0"
-                 ng-model="carCapacity"
-                 ng-change="calculate()"
-                 class="form-control"
-                 placeholder="Total capacity in kwh"
-                 aria-described-by="addon_kwh">
-          <span class="input-group-addon" id="addon_kwh">kWh</span>
-          </div>
-        </div>
--->
       </div>
 
       </div>
 
+      <div class="row">
+      <div class="col-xs-6">
         <div class="form-group">
           <label>Ønsket distanse</label>
-          <div class="input-group">
+          <div class="input-group has-success has-feedback">
           <input type="number" step="any" min="0"
                  ng-model="distance"
                  ng-change="calculate()"
@@ -54,6 +42,8 @@
           <span class="input-group-addon" id="addon_dist">km</span>
           </div>
         </div>
+      </div>
+      </div>
 
     </fieldset>
   </form>
