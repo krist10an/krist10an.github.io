@@ -28,25 +28,32 @@
 
     <h4>Fin din bil</h4>
     <div>
-        Søk: <input ng-model="query">
+        <!-- Søk: <input ng-model="query"> -->
+          <input type="string"
+                 ng-model="query"
+                 class="form-control"
+                 placeholder="Søk">
 
-        Sorter etter:
-        <select ng-model="orderProp">
-            <option value="name">Alfabetisk</option>
-            <option value="battery">Batteri størrelse</option>
+<!--
+        <select ng-model="orderProp" class="form-control">
+            <option value="name">Sorter etter navn</option>
+            <option value="battery">Sorter etter kapasitet</option>
         </select>
+-->
+    </div>
 
         <table class="table table-striped">
           <thead><tr>
             <th>Navn</th>
             <th>Kapasitet</th>
+            <th>&nbsp;</th>
           </tr></thead>
-          <tbody><tr ng-repeat="car in carPresets| orderBy:orderProp | filter:query">
+          <tbody><tr ng-repeat="car in carPresets | orderBy:orderProp | filter:query">
             <td>{{ car.name }}</td>
             <td>{{ car.battery }}</td>
             <td>
               <button class="btn" ng-click="setCapacity(car.battery)">
-              <span class="glyphicon glyphicon-pencil"></span>&nbsp;&nbsp;Velg
+              <span class="fa fa-bookmark"></span>&nbsp;&nbsp;Velg
               </button>
             </td>
           </tr></tbody>

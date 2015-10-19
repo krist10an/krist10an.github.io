@@ -3,7 +3,7 @@
 
   <form role="form">
     <fieldset>
-      <legend><i class="fa fa-bolt fa-lg"></i> Beregne kjørelengde</legend>
+      <legend><i class="fa fa-road fa-lg"></i> Beregne kjørelengde</legend>
 
 <!--
         <div class="form-group has-success has-feedback">
@@ -55,21 +55,21 @@
 
           <br/>
           <div class="btn-group" role="group" ng-repeat="(key, val) in consumptionUnits">
-            <button type="button" class="btn btn-default" ng-class="{true: 'active'}[key == currentUnit]" ng-click="setUnit(key)">{{key}}</a>
+            <button type="button" class="btn btn-default" ng-class="{true: 'active'}[key == currentUnit]" ng-click="setUnit(key)">{{key}}</button>
           </div>
 
         </div>
         </div>
         </div>
     </fieldset>
-    <hr>
+  </form>
 
-    <h4>
-    <b>Beregnet kjørelengde:</b>
-    </h4>
-    <h3>
-    {{ estimated | number:1 }} km
-    </h3>
+  <hr>
+
+  <div>
+    <h4><b>Beregnet kjørelengde:</b></h4>
+    <h3>{{ estimated | number:1 }} km</h3>
+  </div>
 
   </div>
 </div>

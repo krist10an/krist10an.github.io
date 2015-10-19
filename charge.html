@@ -1,0 +1,58 @@
+<div class="scrollable">
+ <div class="scrollable-content section">
+
+  <form role="form">
+    <fieldset>
+      <legend><i class="fa fa-bolt fa-lg"></i> Beregne ladenivå</legend>
+
+      <div class="form-group">
+        <label>Ønsket distanse</label>
+        <div class="input-group">
+        <input type="number" step="any" min="0"
+               ng-model="distance"
+               ng-change="calculate()"
+               class="form-control"
+               placeholder="Distance"
+               aria-described-by="addon_dist">
+        <span class="input-group-addon" id="addon_dist">km</span>
+        </div>
+      </div>
+
+      <div class="row">
+        <div class="col-sm-6">
+          <label>Forventa Forbruk</label>
+          <input type="number" step="any" min="0"
+                 ng-model="consumption"
+                 ng-change="calculate()"
+                 class="form-control"
+                 placeholder="Consumption">
+        </div>
+        <div class="col-sm-6">
+<!--
+          <label>Enhet</label>
+
+          <div class="btn-group" role="group" ng-repeat="(key, val) in consumptionUnits">
+            <button type="button" class="btn btn-default" ng-class="{true: 'active'}[key == currentUnit]" ng-click="setUnit(key)">{{key}}</a>
+          </div>
+-->
+        </div>
+      </div>
+
+
+    </fieldset>
+  </form>
+
+  <hr>
+
+  <div>
+    <h4><b>Ladenivå må minimum være:</b></h4>
+    <h3>{{ estimated | number:1 }} %</h3>
+
+      <div class="col-xs-6">
+            <p>{{ required_kwh|number:1}} kWh trengs / {{carCapacity.getCapacity()}} kWh maks</p>
+      </div>
+
+  </div>
+
+  </div>
+</div>

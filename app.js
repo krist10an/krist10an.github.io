@@ -38,6 +38,7 @@ app.config(function($routeProvider) {
   $routeProvider.when('/',              {templateUrl: 'home.html', controller:"ElbilKalkController"});
   $routeProvider.when('/consumption',   {templateUrl: 'consumption.html', controller: "ConsumptionController"});
   $routeProvider.when('/distance',      {templateUrl: 'distance.html', controller: "DistanceController"});
+  $routeProvider.when('/charge',        {templateUrl: 'charge.html', controller: "ChargeController"});
 });
 
 
@@ -59,13 +60,15 @@ app.factory('CarCapacity', function($localstorage) {
 });
 
 
-
 // Controllers
 
 app.controller("ElbilKalkController", function($scope, CarCapacity) {
     $scope.carPresets = [
-        { "name" : "Tesla Model S", "consumption" : 17, "battery": 85},
-        { "name" : "VW eGolf", "consumption" : 17, "battery" : 21.4},
+        { "name" : "Tesla Model S70", "consumption" : 17, "battery": 85},
+        { "name" : "Tesla Model S85", "consumption" : 17, "battery": 85},
+        { "name" : "VW eGolf 2015", "consumption" : 17, "battery" : 21.2},
+        { "name" : "Nissan Leaf 2015", "consumption" : 17, "battery":  21.3},
+        { "name" : "Kia Soul 2015", "consumption" : 17, "battery":  27},
         ];
     $scope.orderProp = 'name';
     $scope.CarCapacity = CarCapacity
@@ -127,6 +130,28 @@ app.controller("DistanceController", function($scope, CarCapacity, $localstorage
         console.log("exponential", exponential)
         console.log("Madness", $scope.madness);
 */
+    };
+
+    // Set initial values
+    $scope.calculate();
+});
+
+app.controller("ChargeController", function($scope, CarCapacity, $localstorage) {
+    $scope.carCapacity = CarCapacity;
+
+    $scope.distance = parseFloat($localstorage.get("charge_distance", 150));
+    $scope.consumption = parseFloat($localstorage.get("charge_consumption", 17));
+
+    // Calculated variables
+    $scope.estimated = 0;
+    $scope.required_kwh = 0;
+
+    $scope.calculate = function calculate() {
+        unit = 100;
+        $scope.required_kwh = $scope.distance * ( $scope.consumption / unit);
+        $scope.estimated = $scope.required_kwh / CarCapacity.getCapacity() * 100;
+        $localstorage.set("charge_distance", $scope.distance);
+        $localstorage.set("charge_consumption", $scope.consumption);
     };
 
     // Set initial values

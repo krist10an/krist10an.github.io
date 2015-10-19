@@ -3,7 +3,7 @@
 
   <form role="form">
     <fieldset>
-      <legend><i class="fa fa-bullseye fa-lg"></i> Beregne maks forbruk</legend>
+      <legend><i class="fa fa-bar-chart fa-lg"></i> Beregne maks forbruk</legend>
 
       <div class="row">
       <div class="col-xs-6">
@@ -56,9 +56,12 @@
         </div>
 
     </fieldset>
-    <hr>
+  </form>
 
-    <h3><b>Forbruk må ligge under:</b></h3>
+  <hr>
+
+  <div>
+    <h4><b>Forbruk må ligge under:</b></h4>
     <h3>{{ estimated | number:1 }} kWh/100km</h3>
     <h3>{{ estimated*10 | number:0 }} Wh/km</h3>
 
@@ -70,6 +73,7 @@
   </div>
 </div>
 -->
+  </div>
 
   </div>
 </div>
