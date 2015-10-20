@@ -52,7 +52,7 @@ app.factory('CarCapacity', function($localstorage) {
             return data.Capacity;
         },
         setCapacity: function(value) {
-            console.log("Setting capacity to", value);
+            //console.log("Setting capacity to", value);
             data.Capacity = value;
             $localstorage.set("capacity", parseFloat(value));
         }
@@ -76,7 +76,7 @@ app.factory('UnitPreference', function($localstorage) {
             return consumptionUnits[data.preferredUnit];
         },
         setConsumptionUnit: function(value) {
-            console.log("Setting consumption to", value);
+            //console.log("Setting consumption to", value);
             data.preferredUnit = value;
             $localstorage.set("unit_preference", value);
         }
@@ -129,7 +129,7 @@ app.controller("ConsumptionController", function($scope, CarCapacity, UnitPrefer
     $scope.calculate = function calculate() {
         unit = UnitPreference.getConsumptionUnitFactor();
         $scope.estimated = CarCapacity.getCapacity() * ($scope.soc / 100.0) / $scope.consumption * unit;
-        console.log("Calculated distance", $scope.estimated);
+        //console.log("Calculated distance", $scope.estimated);
 
         $localstorage.set("cons_consumption", $scope.consumption);
         $localstorage.set("cons_soc", $scope.soc);
