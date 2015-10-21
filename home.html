@@ -3,20 +3,20 @@
 
     <legend><i class="fa fa-car fa-lg"></i> Om siden</legend>
 
-    <p>En hjelpende hånd for elbilister på langtur. Velg hva du ønsker å beregne i menyen.</p>
+    <p>En hjelpende hånd for elbilister på langtur. Velg batterikapasitet, deretter hva du ønsker å beregne i menyen.</p>
 
     <div>
     <form role="form">
         <fieldset>
 
-        <legend><i class="fa fa-adjust fa-lg"></i> Foretrukket enhet</legend>
+        <legend><i class="fa fa-compass fa-lg"></i> Foretrukket enhet</legend>
         <div class="btn-group" role="group" ng-repeat="(key, val) in UnitPreference.getAllUnits()">
           <button type="button" class="btn btn-default" ng-class="{true: 'active'}[key == currentUnit]" ng-click="setUnit(key)">{{key}}</button>
         </div>
 
         <hr>
 
-        <legend><i class="fa fa-battery-1 fa-lg"></i> Velg batterikapasitet</legend>
+        <legend><i class="fa fa-sliders fa-lg"></i> Velg batterikapasitet</legend>
         <div class="form-group has-success">
           <div class="input-group">
           <input type="number" step="any" min="0"
@@ -33,13 +33,15 @@
 
     <hr>
 
-    <h4>Fin din bil</h4>
+    <h4>Finn din bil</h4>
     <div>
         <!-- Søk: <input ng-model="query"> -->
+<!--
           <input type="string"
                  ng-model="query"
                  class="form-control"
                  placeholder="Søk">
+-->
 
 <!--
         <select ng-model="orderProp" class="form-control">

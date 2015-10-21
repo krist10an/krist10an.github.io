@@ -134,6 +134,10 @@ app.controller("ConsumptionController", function($scope, CarCapacity, UnitPrefer
         $localstorage.set("cons_consumption", $scope.consumption);
         $localstorage.set("cons_soc", $scope.soc);
     };
+    $scope.vw = function vw(val) {
+        $scope.soc = Math.floor(parseFloat(val) / 80 * 100);
+        $scope.calculate();
+    }
     // Set initial values
     $scope.calculate();
 });
@@ -162,6 +166,10 @@ app.controller("DistanceController", function($scope, CarCapacity, $localstorage
         console.log("Madness", $scope.madness);
 */
     };
+    $scope.vw = function vw(val) {
+        $scope.soc = Math.floor(parseFloat(val) / 80 * 100);
+        $scope.calculate();
+    }
 
     // Set initial values
     $scope.calculate();
