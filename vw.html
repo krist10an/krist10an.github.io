@@ -1,49 +1,38 @@
-<!-- VW% -->
-  <a href=""
-          ui-turn-on="modal1"
-          class="btn btn-default"><i class="fa fa-stethoscope fa-sm"></i> VW%</a>
+<div class="scrollable">
+  <div class="scrollable-content section">
 
+    <legend><i class="fa fa-dashboard fa-lg"></i> eGolf prosent beregning</legend>
 
-<div ui-content-for="modals">
+    <p>VW har i sin uendelige visdom utstyrt e-Golf med en batteri-indikator som er delt i 8. De som ikke er så gode i 12.5-gangen kan bruke dette viduet til å regne ut hva det tilsvarer i prosent. Bruk 45 for 4.5 streker.</p>
 
+    <div class="row">
+      <div class="col-xs-6">
 
-<div class="modal" ui-if='modal1' ui-state='modal1'>
-  <div class="modal-backdrop in"></div>
-  <div class="modal-dialog">
-    <div class="modal-content">
-      <div class="modal-header">
-        <button class="close"
-                ui-turn-off="modal1">&times;</button>
-        <h4 class="modal-title"><i class="fa fa-stethoscope fa-lg"></i> VW-prosent konvertering</h4>
+        <form role="form">
+          <fieldset>
+            <div class="form-group has-success">
+              <label>VW-prosent (0-80)</label>
+              <div class="input-group">
+                <input type="number" min="0" max="80"
+                ng-model="vwper"
+                ng-change="updateGauge(vwper)"
+                class="form-control"
+                placeholder="0-80vw%"
+                aria-described-by="addon_eg">
+                <span class="input-group-addon"  id="addon_eg">vw%</span>
+              </div>
+            </div>
+
+          </fieldset>
+        </form>
+        <p>{{soc|number:1}} %</p>
+
       </div>
-      <div class="modal-body">
-
-  <p>VW har i sin uendelige visdom utstyrt e-Golf med en batteri-indikator som er delt i 8. De som ikke er så gode i 12.5-gangen kan bruke dette viduet til å regne ut hva det tilsvarer i prosent. Bruk 45 for 4.5 streker.</p>
-  <form role="form">
-    <fieldset>
-        <div class="form-group has-success">
-          <label>VW-prosent (0-80)</label>
-          <div class="input-group">
-          <input type="number" min="0" max="80"
-                 ng-model="vwper"
-                 class="form-control"
-                 placeholder="0-80vw%"
-                 aria-described-by="addon_eg">
-          <span class="input-group-addon"  id="addon_eg">vw%</span>
-          </div>
-        </div>
-
-    </fieldset>
-  </form>
-  <p>{{vwper/80.0*100|number:1}} %</p>
+      <div class="col-xs-6">
+        <span id="batteryGaugeContainer"></span>
       </div>
-      <div class="modal-footer">
-        <button ui-turn-off="modal1" class="btn btn-default">Forkast</button>
-        <button ui-turn-off="modal1" ng-click="vw(vwper)" class="btn btn-primary">Lagre</button>
-      </div>
+
     </div>
+
   </div>
 </div>
-
-</div>
-<!-- /VW% -->

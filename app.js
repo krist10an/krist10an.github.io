@@ -48,6 +48,7 @@ app.config(function($routeProvider) {
   $routeProvider.when('/consumption',   {templateUrl: 'consumption.html', controller: "ConsumptionController"});
   $routeProvider.when('/distance',      {templateUrl: 'distance.html', controller: "DistanceController"});
   $routeProvider.when('/charge',        {templateUrl: 'charge.html', controller: "ChargeController"});
+  $routeProvider.when('/vw',            {templateUrl: 'vw.html', controller: "VwController"});
 });
 
 
@@ -143,10 +144,6 @@ app.controller("ConsumptionController", function($scope, CarCapacity, UnitPrefer
         $localstorage.set("cons_consumption", $scope.consumption);
         $localstorage.set("cons_soc", $scope.soc);
     };
-    $scope.vw = function vw(val) {
-        $scope.soc = Math.floor(parseFloat(val) / 80 * 100);
-        $scope.calculate();
-    }
     // Set initial values
     $scope.calculate();
 });
@@ -175,11 +172,6 @@ app.controller("DistanceController", function($scope, CarCapacity, $localstorage
         console.log("Madness", $scope.madness);
 */
     };
-    $scope.vw = function vw(val) {
-        $scope.soc = Math.floor(parseFloat(val) / 80 * 100);
-        $scope.calculate();
-    }
-
     // Set initial values
     $scope.calculate();
 });
@@ -205,4 +197,43 @@ app.controller("ChargeController", function($scope, CarCapacity, UnitPreference,
 
     // Set initial values
     $scope.calculate();
+});
+
+app.controller("VwController", function($scope, $localstorage) {
+    $scope.vwper = 0;
+    $scope.soc = 0;
+
+    $scope.gauges = [];
+    $scope.createGauge = function createGauge(name, label, min, max) {
+        var config =
+        {
+          size: 120,
+          label: label,
+          min: undefined != min ? min : 0,
+          max: undefined != max ? max : 80,
+          minorTicks: 2,
+          majorTicks: 9,
+        }
+
+        var range = config.max - config.min;
+        config.redZones = [{ from: config.min, to: config.min + range/(2*8) }];
+
+        $scope.gauges[name] = new Gauge(name + "GaugeContainer", config);
+        $scope.gauges[name].render();
+      }
+    $scope.initialize = function initialize() {
+        $scope.createGauge("battery", "Battery");
+      }
+
+    $scope.updateGauge = function updateGauge(value) {
+        if (undefined != value)  {
+            $scope.gauges["battery"].redraw(value);
+            $scope.soc = parseFloat(value) / 80 * 100;
+        } else {
+            $scope.soc = NaN;
+        }
+      }
+
+    // Setup gauges
+    $scope.initialize();
 });
