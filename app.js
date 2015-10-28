@@ -98,11 +98,15 @@ app.factory('UnitPreference', function($localstorage) {
 
 app.controller("ElbilKalkController", function($scope, CarCapacity, UnitPreference) {
     $scope.carPresets = [
-        { "name" : "Tesla Model S70", "battery": 70},
-        { "name" : "Tesla Model S85", "battery": 85},
-        { "name" : "VW eGolf 2015", "battery" : 21.2},
-        { "name" : "Nissan Leaf 2015", "battery":  21.3},
-        { "name" : "Kia Soul 2015", "battery":  27},
+        { "name" : "BMW i3 2015",      "battery": 18.8},
+        { "name" : "Kia Soul EV 2015", "battery": 24.3},
+        { "name" : "Mercedes B Electric 2015", "battery": 27 },
+        { "name" : "Nissan Leaf 2015", "battery": 21.3},
+        { "name" : "Renault Zoe 2015", "battery": 18.8},
+        { "name" : "Tesla Model S70",  "battery": 65},
+        { "name" : "Tesla Model S85",  "battery": 75},
+        { "name" : "VW eGolf 2015",    "battery": 21.2},
+        { "name" : "VW eUP 2015",      "battery": 16.8},
         ];
     $scope.orderProp = 'name';
     $scope.CarCapacity = CarCapacity
