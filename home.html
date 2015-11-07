@@ -18,7 +18,7 @@
 
         <hr>
 
-        <legend><i class="fa fa-sliders fa-lg"></i> Velg batterikapasitet</legend>
+        <legend><i class="fa fa-sliders fa-lg"></i> Sett tilgjengelig batterikapasitet</legend>
         <div class="form-group has-success">
           <div class="input-group">
           <input type="number" step="any" min="0"
@@ -35,9 +35,9 @@
 
     <hr>
 
-    <h4>Finn din bil</h4>
+    <h4>Kapasitet for utvalgte biler</h4>
     <div>
-    <p>Batterikapasiteten er produsentens tall ved ny bil, og bør reduseres etterhvert som kapasiteten på batteriet i din bil reduseres. (Eksempelvis er Volkswagen's garanti på 2015 eGolf minst 70% kapasitet etter 8 år. 21.2 kWh * 70% = 14.8 kWh.)</p>
+    <p>Batterikapasitet tilgjegenlig er produsentens tall ved ny bil, og bør reduseres etterhvert som kapasiteten på batteriet i din bil reduseres. (Eksempelvis er Volkswagen's garanti på 2015 eGolf minst 70% kapasitet etter 8 år. 21.2 kWh * 70% = 14.8 kWh.)</p>
         <!-- Søk: <input ng-model="query"> -->
 <!--
           <input type="string"
@@ -54,7 +54,7 @@
 -->
     </div>
     <div>
-        <p>Informasjon om kapasitet er funnet rundt omkring på nettet, bør sjekkes med din bil!</p>
+        <p>Informasjon om tilgjengelig kapasitet er funnet rundt omkring på nettet, verifiser at det stemmer med din bil!</p>
         <table class="table table-striped">
           <thead><tr>
             <th>Navn</th>
@@ -63,7 +63,7 @@
           </tr></thead>
           <tbody><tr ng-repeat="car in carPresets | orderBy:orderProp | filter:query">
             <td>{{ car.name }}</td>
-            <td>{{ car.battery }}</td>
+            <td>{{ car.battery }} kWh</td>
             <td>
               <button class="btn" ng-click="setCapacity(car.battery)">
               <span class="fa fa-bookmark"></span>&nbsp;&nbsp;Velg

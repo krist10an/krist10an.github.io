@@ -181,8 +181,23 @@ app.controller("DistanceController", function($scope, CarCapacity, $localstorage
 });
 
 app.controller("ChargeController", function($scope, CarCapacity, UnitPreference, $localstorage) {
+    // Set up locale
+    moment.locale("nb");
+
     $scope.carCapacity = CarCapacity;
     $scope.unitPreference = UnitPreference;
+
+    $scope.chargeSpeeds = [
+        { "voltage" :  230, "current": 6},
+        { "voltage" :  230, "current": 10},
+        { "voltage" :  230, "current": 13},
+        { "voltage" :  230, "current": 16},
+        { "voltage" :  400, "current": 10},
+        { "voltage" :  400, "current": 16},
+        { "voltage" :  400, "current": 20},
+        { "voltage" :  400, "current": 27.5},
+        { "voltage" :  400, "current": 55},
+        ];
 
     $scope.distance = parseFloat($localstorage.get("charge_distance", 150));
     $scope.consumption = parseFloat($localstorage.get("charge_consumption", 15));
@@ -190,6 +205,19 @@ app.controller("ChargeController", function($scope, CarCapacity, UnitPreference,
     // Calculated variables
     $scope.estimated = 0;
     $scope.required_kwh = 0;
+
+    $scope.normalize_consumption = function normalize_consumption() {
+        unit = UnitPreference.getConsumptionUnitFactor();
+        return $scope.consumption / unit;
+    };
+
+    $scope.calc_speed = function calc_speed(v, c) {
+        return v * c / 1000 / $scope.normalize_consumption();
+    };
+    $scope.calc_duration = function calc_duration(v, c) {
+        var dur = $scope.distance / $scope.calc_speed(v, c) * 3600 * 1000;
+        return moment.duration(dur).humanize();
+    }
 
     $scope.calculate = function calculate() {
         unit = UnitPreference.getConsumptionUnitFactor();
@@ -204,7 +232,7 @@ app.controller("ChargeController", function($scope, CarCapacity, UnitPreference,
 });
 
 app.controller("VwController", function($scope, $localstorage) {
-    $scope.vwper = 0;
+    $scope.vwper = "";
     $scope.soc = 0;
 
     $scope.gauges = [];
