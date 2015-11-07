@@ -60,15 +60,13 @@
     <div ng-if="cshow">
       <table class="table table-striped">
         <thead><tr>
-          <th>Spenning</th>
-          <th>Strøm</th>
+          <th>V / A</th>
           <th>Effekt</th>
           <th>E.ladehastighet</th>
           <th>E.ladetid</th>
         </tr></thead>
         <tbody><tr ng-repeat="chargeSpeed in chargeSpeeds">
-          <td>{{ chargeSpeed.voltage }} V</td>
-          <td>{{ chargeSpeed.current }} A</td>
+          <td>{{ chargeSpeed.voltage }}V, {{ chargeSpeed.current }}A</td>
           <td>{{chargeSpeed.voltage * chargeSpeed.current / 1000|number:1}} kW</td>
           <td>{{calc_speed(chargeSpeed.voltage, chargeSpeed.current)|number:1}} km/h</td>
           <td>{{calc_duration(chargeSpeed.voltage, chargeSpeed.current)}}</td>
