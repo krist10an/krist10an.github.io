@@ -44,11 +44,12 @@ app.run(['$rootScope', '$location', '$window', function($rootScope, $location, $
 // Routes
 
 app.config(function($routeProvider) {
-  $routeProvider.when('/',              {templateUrl: 'home.html', controller:"ElbilKalkController"});
+  $routeProvider.when('/',              {templateUrl: 'home.html', controller:"HomeController"});
   $routeProvider.when('/consumption',   {templateUrl: 'consumption.html', controller: "ConsumptionController"});
   $routeProvider.when('/distance',      {templateUrl: 'distance.html', controller: "DistanceController"});
   $routeProvider.when('/charge',        {templateUrl: 'charge.html', controller: "ChargeController"});
   $routeProvider.when('/vw',            {templateUrl: 'vw.html', controller: "VwController"});
+  $routeProvider.when('/about',         {templateUrl: 'about.html', controller: "HomeController"});
 });
 
 
@@ -85,6 +86,10 @@ app.factory('UnitPreference', function($localstorage) {
         getConsumptionUnitFactor: function() {
             return consumptionUnits[data.preferredUnit];
         },
+        normalized: function(value) {
+            // Consumption in kWh
+            return value / consumptionUnits[data.preferredUnit];
+        },
         setConsumptionUnit: function(value) {
             //console.log("Setting consumption to", value);
             data.preferredUnit = value;
@@ -96,7 +101,7 @@ app.factory('UnitPreference', function($localstorage) {
 
 // Controllers
 
-app.controller("ElbilKalkController", function($scope, CarCapacity, UnitPreference) {
+app.controller("HomeController", function($scope, CarCapacity, UnitPreference) {
     $scope.carPresets = [
         { "name" : "BMW i3 2015",      "battery": 18.8},
         { "name" : "Kia Soul EV 2015", "battery": 24.3},
@@ -141,9 +146,7 @@ app.controller("ConsumptionController", function($scope, CarCapacity, UnitPrefer
     $scope.estimated = 0;
 
     $scope.calculate = function calculate() {
-        unit = UnitPreference.getConsumptionUnitFactor();
-        $scope.estimated = CarCapacity.getCapacity() * ($scope.soc / 100.0) / $scope.consumption * unit;
-        //console.log("Calculated distance", $scope.estimated);
+        $scope.estimated = CarCapacity.getCapacity() * ($scope.soc / 100.0) / UnitPreference.normalized($scope.consumption);
 
         $localstorage.set("cons_consumption", $scope.consumption);
         $localstorage.set("cons_soc", $scope.soc);
@@ -207,8 +210,7 @@ app.controller("ChargeController", function($scope, CarCapacity, UnitPreference,
     $scope.required_kwh = 0;
 
     $scope.normalize_consumption = function normalize_consumption() {
-        unit = UnitPreference.getConsumptionUnitFactor();
-        return $scope.consumption / unit;
+        return UnitPreference.normalized($scope.consumption);
     };
 
     $scope.calc_speed = function calc_speed(v, c) {
@@ -220,8 +222,7 @@ app.controller("ChargeController", function($scope, CarCapacity, UnitPreference,
     }
 
     $scope.calculate = function calculate() {
-        unit = UnitPreference.getConsumptionUnitFactor();
-        $scope.required_kwh = $scope.distance * ( $scope.consumption / unit);
+        $scope.required_kwh = $scope.distance * ( UnitPreference.normalized($scope.consumption) );
         $scope.estimated = $scope.required_kwh / CarCapacity.getCapacity() * 100;
         $localstorage.set("charge_distance", $scope.distance);
         $localstorage.set("charge_consumption", $scope.consumption);
