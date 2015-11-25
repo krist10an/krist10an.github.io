@@ -36,8 +36,10 @@
     <hr>
 
     <h4>Kapasitet for utvalgte biler</h4>
-    <div>
-    <p>Batterikapasitet tilgjegenlig er produsentens tall ved ny bil, og bør reduseres etterhvert som kapasiteten på batteriet i din bil reduseres. (Eksempelvis er Volkswagen's garanti på 2015 eGolf minst 70% kapasitet etter 8 år. 21.2 kWh * 70% = 14.8 kWh.)</p>
+    <ui-switch ng-model='showpresets'></ui-switch>
+    <div ng-if="showpresets">
+      <div>
+        <p>Batterikapasitet tilgjegenlig er produsentens tall ved ny bil, og bør reduseres etterhvert som kapasiteten på batteriet i din bil reduseres. (Eksempelvis er Volkswagen's garanti på 2015 eGolf minst 70% kapasitet etter 8 år. 21.2 kWh * 70% = 14.8 kWh.)</p>
         <!-- Søk: <input ng-model="query"> -->
 <!--
           <input type="string"
@@ -52,8 +54,8 @@
             <option value="battery">Sorter etter kapasitet</option>
         </select>
 -->
-    </div>
-    <div>
+      </div>
+      <div>
         <p>Informasjon om tilgjengelig kapasitet er funnet rundt omkring på nettet, verifiser at det stemmer med din bil!</p>
         <table class="table table-striped">
           <thead><tr>
@@ -71,6 +73,7 @@
             </td>
           </tr></tbody>
         </table>
+      </div>
     </div>
 
     </div>
