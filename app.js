@@ -184,9 +184,6 @@ app.controller("DistanceController", function($scope, CarCapacity, $localstorage
 });
 
 app.controller("ChargeController", function($scope, CarCapacity, UnitPreference, $localstorage) {
-    // Set up locale
-    moment.locale("nb");
-
     $scope.carCapacity = CarCapacity;
     $scope.unitPreference = UnitPreference;
 
@@ -218,7 +215,7 @@ app.controller("ChargeController", function($scope, CarCapacity, UnitPreference,
     };
     $scope.calc_duration = function calc_duration(v, c) {
         var dur = $scope.distance / $scope.calc_speed(v, c) * 3600 * 1000;
-        return moment.duration(dur).humanize();
+        return humanizeDuration(dur, { units: ["h", "m"], round: true, language: "no" });
     }
 
     $scope.calculate = function calculate() {
