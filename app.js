@@ -120,12 +120,14 @@ app.controller("HomeController", function($scope, CarCapacity, UnitPreference) {
     $scope.orderProp = 'name';
     $scope.CarCapacity = CarCapacity
     $scope.currentCapacity = CarCapacity.getCapacity();
+    $scope.gasEquivalent = CarCapacity.getCapacity() / 8.8;
 
     $scope.currentUnit = UnitPreference.getConsumptionUnit();
     $scope.UnitPreference = UnitPreference;
 
     $scope.$watch('currentCapacity', function (newValue, oldValue) {
         if (newValue !== oldValue) CarCapacity.setCapacity(newValue);
+        $scope.gasEquivalent = newValue / 8.8;
     });
     $scope.setCapacity = function(value) {
         $scope.currentCapacity = value;
