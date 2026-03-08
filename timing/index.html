@@ -326,7 +326,7 @@
     <section class="pending">
       <h2>Pending <span id="pendingHelpInline" class="pending-help-inline">&nbsp;</span></h2>
       <div id="pendingList" class="pending-list">
-        <p id="pendingEmpty" class="pending-empty">No pending bibs</p>
+        <p id="pendingEmpty" class="pending-empty">Add bib to pending list with <strong>+</strong></p>
       </div>
     </section>
 
@@ -354,11 +354,20 @@
     let currentBib = "";
     const pendingBibs = [];
     const MAX_BIB_LENGTH = 6;
-    const PENDING_HELP_TEXT_INACTIVE = "Keyboard <strong>Space</strong>/<strong>*</strong> to select pending bibs";
-    const PENDING_HELP_TEXT_ACTIVE = "Pending selection active, <strong>Space</strong>/<strong>*</strong>/<strong>ESC</strong> to exit. <br/> <strong>\u2190</strong>/<strong>\u2192</strong> to select, <strong>Enter</strong> to record, <strong>-</strong>/<strong>Backspace</strong>/<strong>Delete</strong> to remove";
+    const PENDING_HELP_TEXT_INACTIVE = "<strong>Arrow Keys</strong> to enter pending selection mode";
+    const PENDING_HELP_TEXT_ACTIVE = "Pending selection active, <strong>Enter</strong> to record, <strong>-</strong>/<strong>Backspace</strong>/<strong>Delete</strong> to remove <br/> <strong>\u2190</strong>/<strong>\u2192</strong> or numpad <strong>/</strong>/<strong>*</strong> to navigate, <strong>ESC</strong> to exit.";
     const KEY_BINDINGS = {
-      togglePendingMode: [{ key: "*" }, { code: "NumpadMultiply" }, { code: "Space" }],
+      enterPendingMode: [
+        { key: "ArrowLeft" },
+        { key: "ArrowRight" },
+        { key: "ArrowUp" },
+        { key: "ArrowDown" },
+        { code: "NumpadDivide" },
+        { code: "NumpadMultiply" }
+      ],
       exitPendingMode: [{ key: "Escape" }],
+      navigatePendingPrev: [{ key: "ArrowLeft" }, { key: "ArrowUp" }, { code: "NumpadDivide" }],
+      navigatePendingNext: [{ key: "ArrowRight" }, { key: "ArrowDown" }, { code: "NumpadMultiply" }],
       removePendingBib: [{ key: "Backspace" }, { key: "-" }, { code: "NumpadSubtract" }, { key: "Delete" }],
       submitBib: [{ key: "Enter" }],
       addPendingBib: [{ key: "+" }],
@@ -439,13 +448,10 @@
       }
     }
 
-    function togglePendingKeyboardMode() {
-      if (pendingKeyboardMode) {
-        pendingKeyboardMode = false;
-      } else if (pendingBibs.length) {
-        pendingKeyboardMode = true;
-        normalizePendingSelection();
-      }
+    function enterPendingKeyboardMode() {
+      if (pendingKeyboardMode || !pendingBibs.length) return;
+      pendingKeyboardMode = true;
+      normalizePendingSelection();
       renderPending();
     }
 
@@ -481,9 +487,9 @@
         return true;
       }
 
-      if (matchesBinding(event, KEY_BINDINGS.togglePendingMode)) {
+      if (!pendingKeyboardMode && matchesBinding(event, KEY_BINDINGS.enterPendingMode)) {
         event.preventDefault();
-        togglePendingKeyboardMode();
+        enterPendingKeyboardMode();
         return true;
       }
 
@@ -491,13 +497,13 @@
     }
 
     function handlePendingModeKeys(event) {
-      if (event.key === "ArrowLeft" || event.key === "ArrowUp") {
+      if (matchesBinding(event, KEY_BINDINGS.navigatePendingPrev)) {
         event.preventDefault();
         movePendingSelection(-1);
         return true;
       }
 
-      if (event.key === "ArrowRight" || event.key === "ArrowDown") {
+      if (matchesBinding(event, KEY_BINDINGS.navigatePendingNext)) {
         event.preventDefault();
         movePendingSelection(1);
         return true;
