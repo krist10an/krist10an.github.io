@@ -1,0 +1,633 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Tidtaking</title>
+  <style>
+    :root {
+      --bg: #f4f4f4;
+      --panel: #dcdcdc;
+      --key-bg: #e8e8e8;
+      --key-border: #2f2f2f;
+      --enter: #2ca742;
+      --text: #102033;
+      --list-row: #c6dbc8;
+    }
+
+    * {
+      box-sizing: border-box;
+      font-family: "Segoe UI", Tahoma, sans-serif;
+    }
+
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      display: flex;
+      justify-content: center;
+      padding: 8px;
+    }
+
+    .app {
+      width: min(560px, 100%);
+      display: grid;
+      gap: 8px;
+    }
+
+    .panel {
+      border: 3px solid #222;
+      border-radius: 2px;
+      background: var(--panel);
+      padding: 10px;
+    }
+
+    .bib-display {
+      height: 48px;
+      border: 2px solid #2d2d2d;
+      border-radius: 8px;
+      background: #f8f8f8;
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+      padding: 0 14px;
+      font-size: 2rem;
+      letter-spacing: 0.04em;
+      margin-bottom: 10px;
+      overflow: hidden;
+    }
+
+    .keypad {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px;
+    }
+
+    .key,
+    .action-btn {
+      border: 3px solid var(--key-border);
+      border-radius: 10px;
+      font-size: clamp(2rem, 5vw, 3rem);
+      height: 78px;
+      background: var(--key-bg);
+      color: #0d2035;
+      cursor: pointer;
+      transition: transform 0.03s ease;
+    }
+
+    .key:active,
+    .action-btn:active,
+    .pending-bib:active {
+      transform: translateY(1px);
+    }
+
+    .spacer {
+      visibility: hidden;
+    }
+
+    .actions {
+      margin-top: 10px;
+      display: grid;
+      grid-template-columns: 1fr 3fr;
+      gap: 10px;
+    }
+
+    .add-btn {
+      background: #e7b131;
+      color: #09213a;
+      font-weight: 700;
+      font-size: 2.2rem;
+      height: 92px;
+    }
+
+    .enter {
+      background: var(--enter);
+      color: #fff;
+      font-weight: 700;
+      font-size: 2.9rem;
+      height: 92px;
+    }
+
+    .pending {
+      border: 3px solid #222;
+      border-radius: 18px;
+      background: var(--panel);
+      padding: 10px;
+    }
+
+    .pending.keyboard-mode {
+      border-color: #2b5c99;
+      box-shadow: inset 0 0 0 2px #a8c3e6;
+    }
+
+    .pending h2 {
+      margin: 0 0 8px;
+      font-size: 2rem;
+      font-weight: 500;
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 12px;
+      min-height: 2.8rem;
+    }
+
+    .pending-help-inline {
+      margin-left: auto;
+      font-size: 0.82rem;
+      font-weight: 400;
+      color: #3d5268;
+      text-align: right;
+      line-height: 1.15;
+      max-width: 360px;
+    }
+
+    .pending.keyboard-mode .pending-help-inline {
+      color: #2b5c99;
+    }
+
+    .pending-list {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      min-height: 56px;
+      align-items: flex-start;
+    }
+
+    .pending-empty {
+      margin: 0;
+      font-size: 1.2rem;
+      color: #354657;
+    }
+
+    .pending-item {
+      display: inline-flex;
+      align-items: center;
+      border: 2px solid var(--key-border);
+      border-radius: 8px;
+      overflow: hidden;
+      background: #f1f1f1;
+    }
+
+    .pending-bib {
+      border: 0;
+      border-right: 2px solid #b7b7b7;
+      border-radius: 0;
+      background: transparent;
+      color: #0d2035;
+      font-size: 1.8rem;
+      font-weight: 600;
+      padding: 8px 14px;
+      cursor: pointer;
+      transition: transform 0.03s ease;
+    }
+
+    .pending-remove {
+      border: 0;
+      background: #f4d8d8;
+      color: #5a0f0f;
+      font-size: 1.3rem;
+      font-weight: 700;
+      padding: 8px 10px;
+      cursor: pointer;
+    }
+
+    .pending-remove:hover {
+      background: #efc2c2;
+    }
+
+    .pending-remove:active {
+      transform: translateY(1px);
+    }
+
+    .pending-bib:hover {
+      background: #e9eef2;
+    }
+
+    .pending-bib.selected {
+      background: #2b5c99;
+      color: #fff;
+      border-right-color: #1f4472;
+    }
+
+    .times {
+      border: 3px solid #222;
+      border-radius: 18px;
+      background: var(--panel);
+      padding: 10px;
+    }
+
+    .times h2 {
+      margin: 0 0 8px;
+      font-size: 2rem;
+      font-weight: 500;
+    }
+
+    .table-wrap {
+      border: 2px solid #73827d;
+      height: 180px;
+      overflow-y: auto;
+      background: #b8cdbd;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 1.45rem;
+    }
+
+    td {
+      padding: 3px 8px;
+      border-bottom: 1px solid #8da394;
+      background: var(--list-row);
+      line-height: 1.25;
+    }
+
+    td:first-child {
+      width: 35%;
+      font-weight: 600;
+    }
+
+    @media (max-width: 520px) {
+      .key,
+      .action-btn {
+        height: 64px;
+      }
+
+      .add-btn {
+        font-size: 1.7rem;
+      }
+
+      .enter {
+        font-size: 2rem;
+      }
+
+      .table-wrap {
+        height: 220px;
+      }
+
+      table {
+        font-size: 1.05rem;
+      }
+
+      .times h2 {
+        font-size: 1.5rem;
+      }
+
+      .pending h2 {
+        font-size: 1.5rem;
+        min-height: 2.2rem;
+      }
+
+      .pending-help-inline {
+        font-size: 0.72rem;
+        max-width: 220px;
+      }
+
+      .pending-bib {
+        font-size: 1.2rem;
+      }
+
+      .pending-remove {
+        font-size: 1rem;
+      }
+
+    }
+  </style>
+</head>
+<body>
+  <main class="app">
+    <section class="panel">
+      <div id="bibDisplay" class="bib-display">&nbsp;</div>
+
+      <div class="keypad" id="keypad">
+        <button class="key" data-digit="7">7</button>
+        <button class="key" data-digit="8">8</button>
+        <button class="key" data-digit="9">9</button>
+
+        <button class="key" data-digit="4">4</button>
+        <button class="key" data-digit="5">5</button>
+        <button class="key" data-digit="6">6</button>
+
+        <button class="key" data-digit="1">1</button>
+        <button class="key" data-digit="2">2</button>
+        <button class="key" data-digit="3">3</button>
+
+        <button class="key" data-digit="0">0</button>
+        <div class="spacer"></div>
+        <div class="spacer"></div>
+      </div>
+
+      <div class="actions">
+        <button id="addBtn" class="action-btn add-btn">+</button>
+        <button id="enterBtn" class="action-btn enter">Enter</button>
+      </div>
+    </section>
+
+    <section class="pending">
+      <h2>Pending <span id="pendingHelpInline" class="pending-help-inline">&nbsp;</span></h2>
+      <div id="pendingList" class="pending-list">
+        <p id="pendingEmpty" class="pending-empty">No pending bibs</p>
+      </div>
+    </section>
+
+    <section class="times">
+      <h2>Tider</h2>
+      <div class="table-wrap">
+        <table>
+          <tbody id="resultsBody"></tbody>
+        </table>
+      </div>
+    </section>
+  </main>
+
+  <script>
+    const bibDisplay = document.getElementById("bibDisplay");
+    const resultsBody = document.getElementById("resultsBody");
+    const keypad = document.getElementById("keypad");
+    const addBtn = document.getElementById("addBtn");
+    const enterBtn = document.getElementById("enterBtn");
+    const pendingSection = document.querySelector(".pending");
+    const pendingHelpInline = document.getElementById("pendingHelpInline");
+    const pendingList = document.getElementById("pendingList");
+    const pendingEmpty = document.getElementById("pendingEmpty");
+
+    let currentBib = "";
+    const pendingBibs = [];
+    const MAX_BIB_LENGTH = 6;
+    const PENDING_HELP_TEXT_INACTIVE = "Keyboard <strong>Space</strong>/<strong>*</strong> to select pending bibs";
+    const PENDING_HELP_TEXT_ACTIVE = "Pending selection active, <strong>Space</strong>/<strong>*</strong>/<strong>ESC</strong> to exit. <br/> <strong>\u2190</strong>/<strong>\u2192</strong> to select, <strong>Enter</strong> to record, <strong>-</strong>/<strong>Backspace</strong>/<strong>Delete</strong> to remove";
+    const KEY_BINDINGS = {
+      togglePendingMode: [{ key: "*" }, { code: "NumpadMultiply" }, { code: "Space" }],
+      exitPendingMode: [{ key: "Escape" }],
+      removePendingBib: [{ key: "Backspace" }, { key: "-" }, { code: "NumpadSubtract" }, { key: "Delete" }],
+      submitBib: [{ key: "Enter" }],
+      addPendingBib: [{ key: "+" }],
+      eraseBibInput: [{ key: "Backspace" }]
+    };
+    let pendingKeyboardMode = false;
+    let selectedPendingIndex = -1;
+
+    function formatTimestamp(date) {
+      const pad = (n, width = 2) => String(n).padStart(width, "0");
+      return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())} ` +
+             `${pad(date.getHours())}:${pad(date.getMinutes())}:${pad(date.getSeconds())}.` +
+             `${pad(date.getMilliseconds(), 3)}`;
+    }
+
+    function renderBib() {
+      bibDisplay.textContent = currentBib || "\u00A0";
+    }
+
+    function addResult(bib) {
+      const row = document.createElement("tr");
+      const bibCell = document.createElement("td");
+      const timeCell = document.createElement("td");
+
+      bibCell.textContent = bib;
+      timeCell.textContent = formatTimestamp(new Date());
+
+      row.appendChild(bibCell);
+      row.appendChild(timeCell);
+
+      resultsBody.prepend(row);
+    }
+
+    function renderPending() {
+      pendingList.querySelectorAll(".pending-item").forEach((item) => item.remove());
+      pendingEmpty.style.display = pendingBibs.length ? "none" : "block";
+      pendingSection.classList.toggle("keyboard-mode", pendingKeyboardMode);
+      pendingHelpInline.innerHTML = pendingKeyboardMode
+        ? PENDING_HELP_TEXT_ACTIVE
+        : PENDING_HELP_TEXT_INACTIVE;
+
+      pendingBibs.forEach((bib, index) => {
+        const item = document.createElement("div");
+        const bibButton = document.createElement("button");
+        const removeButton = document.createElement("button");
+
+        item.className = "pending-item";
+        bibButton.className = "pending-bib";
+        if (pendingKeyboardMode && selectedPendingIndex === index) {
+          bibButton.classList.add("selected");
+        }
+        bibButton.dataset.bib = bib;
+        bibButton.textContent = bib;
+
+        removeButton.className = "pending-remove";
+        removeButton.dataset.removeBib = bib;
+        removeButton.type = "button";
+        removeButton.title = `Remove bib ${bib}`;
+        removeButton.textContent = "X";
+
+        item.appendChild(bibButton);
+        item.appendChild(removeButton);
+        pendingList.appendChild(item);
+      });
+    }
+
+    function normalizePendingSelection() {
+      if (!pendingBibs.length) {
+        selectedPendingIndex = -1;
+        pendingKeyboardMode = false;
+        return;
+      }
+
+      if (selectedPendingIndex < 0) {
+        selectedPendingIndex = 0;
+      } else if (selectedPendingIndex >= pendingBibs.length) {
+        selectedPendingIndex = pendingBibs.length - 1;
+      }
+    }
+
+    function togglePendingKeyboardMode() {
+      if (pendingKeyboardMode) {
+        pendingKeyboardMode = false;
+      } else if (pendingBibs.length) {
+        pendingKeyboardMode = true;
+        normalizePendingSelection();
+      }
+      renderPending();
+    }
+
+    function movePendingSelection(step) {
+      if (!pendingKeyboardMode || !pendingBibs.length) return;
+      if (selectedPendingIndex < 0) {
+        selectedPendingIndex = 0;
+      } else {
+        selectedPendingIndex = (selectedPendingIndex + step + pendingBibs.length) % pendingBibs.length;
+      }
+      renderPending();
+    }
+
+    function exitPendingKeyboardMode() {
+      if (!pendingKeyboardMode) return;
+      pendingKeyboardMode = false;
+      selectedPendingIndex = -1;
+      renderPending();
+    }
+
+    function matchesBinding(event, bindings) {
+      return bindings.some((binding) => {
+        if (binding.key && event.key === binding.key) return true;
+        if (binding.code && event.code === binding.code) return true;
+        return false;
+      });
+    }
+
+    function handleGlobalShortcuts(event) {
+      if (matchesBinding(event, KEY_BINDINGS.exitPendingMode)) {
+        event.preventDefault();
+        exitPendingKeyboardMode();
+        return true;
+      }
+
+      if (matchesBinding(event, KEY_BINDINGS.togglePendingMode)) {
+        event.preventDefault();
+        togglePendingKeyboardMode();
+        return true;
+      }
+
+      return false;
+    }
+
+    function handlePendingModeKeys(event) {
+      if (event.key === "ArrowLeft" || event.key === "ArrowUp") {
+        event.preventDefault();
+        movePendingSelection(-1);
+        return true;
+      }
+
+      if (event.key === "ArrowRight" || event.key === "ArrowDown") {
+        event.preventDefault();
+        movePendingSelection(1);
+        return true;
+      }
+
+      if (matchesBinding(event, KEY_BINDINGS.submitBib)) {
+        event.preventDefault();
+        if (selectedPendingIndex < 0 || selectedPendingIndex >= pendingBibs.length) return true;
+        markPendingBibAsPassed(pendingBibs[selectedPendingIndex]);
+        return true;
+      }
+
+      if (matchesBinding(event, KEY_BINDINGS.removePendingBib)) {
+        event.preventDefault();
+        if (selectedPendingIndex < 0 || selectedPendingIndex >= pendingBibs.length) return true;
+        removePendingBib(pendingBibs[selectedPendingIndex]);
+        return true;
+      }
+
+      return false;
+    }
+
+    function handleBibEntryKeys(event) {
+      if (/^[0-9]$/.test(event.key)) {
+        if (currentBib.length < MAX_BIB_LENGTH) {
+          currentBib += event.key;
+          renderBib();
+        }
+        return true;
+      }
+
+      if (matchesBinding(event, KEY_BINDINGS.eraseBibInput)) {
+        currentBib = currentBib.slice(0, -1);
+        renderBib();
+        return true;
+      }
+
+      if (matchesBinding(event, KEY_BINDINGS.addPendingBib)) {
+        event.preventDefault();
+        addToPending();
+        return true;
+      }
+
+      if (matchesBinding(event, KEY_BINDINGS.submitBib)) {
+        if (!currentBib) return true;
+        addResult(currentBib);
+        clearBibInput();
+        return true;
+      }
+
+      return false;
+    }
+
+    function clearBibInput() {
+      currentBib = "";
+      renderBib();
+    }
+
+    function addToPending() {
+      if (!currentBib) return;
+      if (!pendingBibs.includes(currentBib)) {
+        pendingBibs.push(currentBib);
+        normalizePendingSelection();
+        renderPending();
+      }
+      clearBibInput();
+    }
+
+    function markPendingBibAsPassed(bib) {
+      const idx = pendingBibs.indexOf(bib);
+      if (idx === -1) return;
+      addResult(bib);
+      pendingBibs.splice(idx, 1);
+      normalizePendingSelection();
+      renderPending();
+    }
+
+    function removePendingBib(bib) {
+      const idx = pendingBibs.indexOf(bib);
+      if (idx === -1) return;
+      pendingBibs.splice(idx, 1);
+      normalizePendingSelection();
+      renderPending();
+    }
+
+    keypad.addEventListener("click", (event) => {
+      const btn = event.target.closest("button[data-digit]");
+      if (!btn) return;
+
+      if (currentBib.length < MAX_BIB_LENGTH) {
+        currentBib += btn.dataset.digit;
+        renderBib();
+      }
+    });
+
+    addBtn.addEventListener("click", () => {
+      addToPending();
+    });
+
+    enterBtn.addEventListener("click", () => {
+      if (!currentBib) return;
+      addResult(currentBib);
+      clearBibInput();
+    });
+
+    pendingList.addEventListener("click", (event) => {
+      const removeButton = event.target.closest("button.pending-remove");
+      if (removeButton) {
+        removePendingBib(removeButton.dataset.removeBib);
+        return;
+      }
+
+      const button = event.target.closest("button.pending-bib");
+      if (!button) return;
+      markPendingBibAsPassed(button.dataset.bib);
+    });
+
+    window.addEventListener("keydown", (event) => {
+      if (handleGlobalShortcuts(event)) return;
+
+      if (pendingKeyboardMode) {
+        handlePendingModeKeys(event);
+        return;
+      }
+
+      handleBibEntryKeys(event);
+    });
+
+    renderBib();
+    renderPending();
+  </script>
+</body>
+</html>
