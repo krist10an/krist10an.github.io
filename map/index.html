@@ -5,18 +5,10 @@
 	<title>Kristian's map area selector</title>
 	<meta charset="utf-8" />
 
-	<link rel="stylesheet" href="http://cdn.leafletjs.com/leaflet-0.5.1/leaflet.css" />
-	<!--[if lte IE 8]>
-		<link rel="stylesheet" href="http://cdn.leafletjs.com/leaflet-0.5.1/leaflet.ie.css" />
-	<![endif]-->
-
-	<script src="http://cdn.leafletjs.com/leaflet-0.5.1/leaflet.js"></script>
-
-	<script src="http://code.jquery.com/jquery-1.10.0.min.js"></script>
-	<script src="http://code.jquery.com/jquery-migrate-1.2.1.min.js"></script>
-
-	<link href="http://netdna.bootstrapcdn.com/twitter-bootstrap/2.3.2/css/bootstrap-combined.min.css" rel="stylesheet">
-	<script src="http://netdna.bootstrapcdn.com/twitter-bootstrap/2.3.2/js/bootstrap.min.js"></script>
+	<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+	<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+	<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+	<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 
 	<style type="text/css">
 		body {
@@ -47,9 +39,8 @@
 	<div class="container">
 		<div>
 		<p class="lead">Move pins to select your area, click to move area
-		<span class="pull-right">
-			<select id="preselected">
-		</select>
+		<span class="float-end">
+			<select id="preselected"></select>
 		</span>
 		</p>
 		</div>
@@ -77,7 +68,7 @@
 
 	<script type="text/javascript">
 		// Predefined
-		var preselected = [
+		const preselected = [
 			{ name: "Hurrungane", value: [[61.41578, 7.89230], [61.48109, 7.73952]]},
 			{ name: "Mt Everest", value: [[28.02411, 86.87920], [27.96439, 86.97155]]},
 			{ name: "Aconcagua", value: [[-32.61624, -70.07835], [-32.72318, -69.91974]]},
@@ -87,27 +78,37 @@
 			{ name: "Mont Blanc", value: [[45.85140, 6.83401], [45.80906, 6.90079]]},
 			{ name: "Mt Vinson", value: [[-78.51232, -85.69405], [-78.53677, -85.53818]]},
 			{ name: "Mt Baker", value: [[48.84755, -121.95648], [48.68552, -121.64200]]},
-		 ];
-		$.each(preselected, function(idx, d) {
-			$("#preselected").append("<option value='"+d.value+"'>"+d.name+"</option>");
-		})
+		];
+		const preselectElem = document.getElementById("preselected");
+		preselected.forEach((d, idx) => {
+			// Store as comma-separated string for easy parsing
+			const val = d.value.flat().join(",");
+			const opt = document.createElement("option");
+			opt.value = val;
+			opt.textContent = d.name;
+			preselectElem.appendChild(opt);
+		});
 
 		// Basemaps
-		var oms_url =  "http://129.206.74.245:8004/tms_hs.ashx?x={x}&y={y}&z={z}"
-		var oms_attr = 'Tiles by <a href="http://openmapsurfer.uni-hd.de/">OpenMapSurfer</a>'
-		var oms_tile = L.tileLayer(oms_url, { maxZoom: 14,	attribution: oms_attr });
+		var osm_url = 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png';
+		var osm_attr = 'Map data &copy; <a href="http://openstreetmap.org">OpenStreetMap</a> contributors, <a href="http://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>';
+		var osm_tile = L.tileLayer(osm_url, { maxZoom: 18, attribution: osm_attr });
 
-		var osm_url = 'http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png'
-		var osm_attr = 'Map data &copy; <a href="http://openstreetmap.org">OpenStreetMap</a> contributors, <a href="http://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>'
-		var osm_tile = L.tileLayer(osm_url, { maxZoom: 18,	attribution: osm_attr });
+		var carto_url = 'https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}.png';
+		var carto_attr = '&copy; <a href="https://carto.com/">CartoDB</a>';
+		var carto_tile = L.tileLayer(carto_url, { maxZoom: 18, attribution: carto_attr });
 
-		var ts_url = "http://tile.stamen.com/terrain-background/{z}/{x}/{y}.jpg"
-		var ts_attr = '<a href="http://maps.stamen.com/">Map tiles</a> by <a href="http://stamen.com/">Samen Design</a>. Map data &copy; <a href="http://openstreetmap.org">OpenStreetMap</a> contributors"'
-		var ts_tile = L.tileLayer(ts_url, { maxZoom: 18, attribution: ts_attr });
+		var carto_dark_url = 'https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}.png';
+		var carto_dark_attr = '&copy; <a href="https://carto.com/">CartoDB</a>';
+		var carto_dark_tile = L.tileLayer(carto_dark_url, { maxZoom: 18, attribution: carto_dark_attr });
 
-		var nk_url = "http://opencache.statkart.no/gatekeeper/gk/gk.open_gmaps?layers=topo2&zoom={z}&x={x}&y={y}"
-		var nk_attr = 'Map data &copy; Norgeskart'
-		var nk_tile = L.tileLayer(nk_url, {	maxZoom: 18, attribution: nk_attr });
+		var opentopo_url = 'https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png';
+		var opentopo_attr = '&copy; <a href="https://opentopomap.org">OpenTopoMap</a> contributors';
+		var opentopo_tile = L.tileLayer(opentopo_url, { maxZoom: 17, attribution: opentopo_attr });
+
+		var stamen_url = 'https://stamen-tiles.a.ssl.fastly.net/toner/{z}/{x}/{y}.png';
+		var stamen_attr = 'Map tiles by <a href="http://stamen.com">Stamen Design</a>, under <a href="http://creativecommons.org/licenses/by/3.0">CC BY 3.0</a>';
+		var stamen_tile = L.tileLayer(stamen_url, { maxZoom: 18, attribution: stamen_attr });
 
 		// Overlays
 		var opm_url = 'http://tiles2.openpistemap.org/landshaded/{z}/{x}/{y}.png'
@@ -122,12 +123,14 @@
 
 		var baseMaps = {
 			"OpenStreetMap": osm_tile,
-			"ASTER GDEM & STRM Hillshade": oms_tile,
-			"Samen Design (US only)" : ts_tile,
-			"Norgeskart" : nk_tile,
+			"CartoDB Positron": carto_tile,
+			"CartoDB Dark Matter": carto_dark_tile,
+			"OpenTopoMap": opentopo_tile,
+			"Stamen Toner": stamen_tile
 		};
 		var overlayMaps = {
-			"Landshading by OpenPisteMap" : opm_tile,
+			// Doesn't work, so not included by default.
+			//"Landshading by OpenPisteMap" : opm_tile,
 		}
 		L.control.layers(baseMaps, overlayMaps).addTo(map);
 
@@ -167,15 +170,12 @@
 			var NW = selectionRect.getBounds().getNorthWest();
 			var SE = selectionRect.getBounds().getSouthEast();
 
-			$("#result_output").html(
-				"["+
-				NW.lat.toFixed(digits) + ", " + NW.lng.toFixed(digits) + "], [" +
-				SE.lat.toFixed(digits) + ", " + SE.lng.toFixed(digits) +
-				"]"
-			);
+			document.getElementById("result_output").textContent =
+				"[" + NW.lat.toFixed(digits) + ", " + NW.lng.toFixed(digits) + "], [" +
+				SE.lat.toFixed(digits) + ", " + SE.lng.toFixed(digits) + "]";
 
-			var dist = get_area_distances();
-			$("#area_output").html(dist.NS + " x " + dist.WE + " meters");
+			const dist = get_area_distances();
+			document.getElementById("area_output").textContent = dist.NS + " x " + dist.WE + " meters";
 			updateScale();
 		}
 
@@ -195,15 +195,13 @@
 		}
 
 		function updateScale() {
-			var targetSize = parseInt($("#stats input")[0].value);
-			if (targetSize == NaN) {
-			} else {
+			const inputElem = document.querySelector("#stats input");
+			const targetSize = parseInt(inputElem.value);
+			if (!isNaN(targetSize)) {
 				currentModelSize = targetSize;
-
-				var dist = get_area_distances();
+				const dist = get_area_distances();
 				currentScale = Math.max(dist.NS, dist.WE) / (targetSize / 1000);
-
-				$("#scale_output").html("1 : " + String(currentScale.toFixed(0)));
+				document.getElementById("scale_output").textContent = "1 : " + String(currentScale.toFixed(0));
 			}
 		}
 
@@ -213,21 +211,22 @@
 
 		map.on('click', onMapClick);
 
-		$("#stats input").keyup(updateScale);
-		$("#preselected").change(function(e) {
-			var vv = $(this).val()
-			console.log(vv);
+		// Define inputElem globally for event attachment
+		const inputElem = document.querySelector("#stats input");
+		inputElem.addEventListener("keyup", updateScale);
+		preselectElem.addEventListener("change", function(e) {
+			let vv = this.value;
 			if (vv) {
-				vv = vv.split(",")
+				vv = vv.split(",").map(Number);
 				markerOne.setLatLng([vv[0], vv[1]]);
 				markerTwo.setLatLng([vv[2], vv[3]]);
 				mapZoom();
 				onMapDrag(0);
 			}
-		})
+		});
 
-		// Forcefully update display
-		$(document).ready(function() {
+		// Update display on load
+		window.addEventListener("DOMContentLoaded", function() {
 			updateScale();
 			onMapDrag();
 			mapZoom();
